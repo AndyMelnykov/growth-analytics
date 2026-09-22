@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "name": "real_time_collab",
+    "release_date": "2024-01-15",
+    "version": "v1.0"
+  },
+  {
+    "id": 2,
+    "name": "ai_insights",
+    "release_date": "2024-03-01",
+    "version": "v1.0"
+  },
+  {
+    "id": 3,
+    "name": "advanced_export",
+    "release_date": "2024-05-01",
+    "version": "v1.0"
+  },
+  {
+    "id": 4,
+    "name": "api_access",
+    "release_date": "2024-07-01",
+    "version": "v1.0"
+  },
+  {
+    "id": 5,
+    "name": "team_analytics",
+    "release_date": "2024-09-01",
+    "version": "v1.0"
+  },
+  {
+    "id": 6,
+    "name": "custom_workflows",
+    "release_date": "2024-11-01",
+    "version": "v1.0"
+  },
+  {
+    "id": 1,
+    "name": "real_time_collab",
+    "release_date": "2024-07-01",
+    "version": "v2.0"
+  },
+  {
+    "id": 2,
+    "name": "ai_insights",
+    "release_date": "2024-10-01",
+    "version": "v2.0"
+  }
+]

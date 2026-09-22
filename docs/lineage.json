@@ -1,0 +1,956 @@
+{
+  "datasets": [
+    {
+      "namespace": "growth-analytics-pipeline",
+      "name": "bronze.conversions",
+      "facets": {
+        "documentation": {
+          "description": "Raw conversion records ingested from conversions.jsonl. A conversion is the moment a free user becomes a paying customer; the ongoing subscription lifecycle after this moment lives in subscription_events."
+        },
+        "schema": {
+          "fields": [
+            {
+              "name": "user_id",
+              "type": "integer",
+              "description": "User who converted"
+            },
+            {
+              "name": "conversion_date",
+              "type": "string",
+              "description": "Conversion date, YYYY-MM-DD"
+            },
+            {
+              "name": "plan",
+              "type": "string",
+              "description": "Plan purchased at conversion: pro or enterprise"
+            },
+            {
+              "name": "mrr",
+              "type": "integer",
+              "description": "Monthly recurring revenue (USD) at conversion"
+            },
+            {
+              "name": "signup_date",
+              "type": "string",
+              "description": "Denormalized signup date for convenience"
+            },
+            {
+              "name": "days_to_convert",
+              "type": "integer",
+              "description": "Days between signup and conversion"
+            },
+            {
+              "name": "used_real_time_collab",
+              "type": "boolean",
+              "description": "Legacy flag from the source system (superseded by usage facts)"
+            },
+            {
+              "name": "ingestion_timestamp",
+              "type": "timestamp",
+              "description": "When the row was loaded into bronze"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "namespace": "growth-analytics-pipeline",
+      "name": "bronze.feature_releases",
+      "facets": {
+        "documentation": {
+          "description": "Raw product feature release log ingested from feature_releases.json. Contains initial releases and later version upgrades of the same feature, which feed the SCD Type 2 feature_states dimension."
+        },
+        "schema": {
+          "fields": [
+            {
+              "name": "feature_id",
+              "type": "integer",
+              "description": "Stable feature identifier (shared across version upgrades)"
+            },
+            {
+              "name": "feature_name",
+              "type": "string",
+              "description": "Machine name of the feature (e.g. real_time_collab)"
+            },
+            {
+              "name": "release_date",
+              "type": "string",
+              "description": "Release date of this version, YYYY-MM-DD"
+            },
+            {
+              "name": "version",
+              "type": "string",
+              "description": "Version label (v1.0, v2.0, ...)"
+            },
+            {
+              "name": "ingestion_timestamp",
+              "type": "timestamp",
+              "description": "When the row was loaded into bronze"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "namespace": "growth-analytics-pipeline",
+      "name": "bronze.feature_usage_events",
+      "facets": {
+        "documentation": {
+          "description": "Raw product telemetry ingested from feature_usage_events.jsonl, partitioned by event_date. Each row is a single user interaction (view/use/share) with a feature."
+        },
+        "schema": {
+          "fields": [
+            {
+              "name": "event_id",
+              "type": "long",
+              "description": "Surrogate event identifier generated at ingestion"
+            },
+            {
+              "name": "user_id",
+              "type": "integer",
+              "description": "User who performed the interaction"
+            },
+            {
+              "name": "feature_id",
+              "type": "integer",
+              "description": "Feature interacted with"
+            },
+            {
+              "name": "feature_name",
+              "type": "string",
+              "description": "Denormalized feature machine name"
+            },
+            {
+              "name": "event_type",
+              "type": "string",
+              "description": "Interaction type: view, use, or share"
+            },
+            {
+              "name": "event_timestamp",
+              "type": "timestamp",
+              "description": "When the interaction happened"
+            },
+            {
+              "name": "event_date",
+              "type": "date",
+              "description": "Calendar date of the interaction (partition column)"
+            },
+            {
+              "name": "ingestion_timestamp",
+              "type": "timestamp",
+              "description": "When the row was loaded into bronze"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "namespace": "growth-analytics-pipeline",
+      "name": "bronze.marketing_attribution",
+      "facets": {
+        "documentation": {
+          "description": "First-touch marketing attribution ingested from marketing_attribution.jsonl. Roughly 5% of signups have no record (direct traffic, lost UTM parameters); downstream joins default those users to 'unattributed'."
+        },
+        "schema": {
+          "fields": [
+            {
+              "name": "user_id",
+              "type": "integer",
+              "description": "Attributed user"
+            },
+            {
+              "name": "channel",
+              "type": "string",
+              "description": "Acquisition channel: organic_search, paid_search, paid_social, content_marketing, referral, partner, outbound"
+            },
+            {
+              "name": "campaign",
+              "type": "string",
+              "description": "Campaign within the channel (e.g. google_brand, webinar_series)"
+            },
+            {
+              "name": "first_touch_date",
+              "type": "string",
+              "description": "Date of the first tracked touch, YYYY-MM-DD (on or before signup)"
+            },
+            {
+              "name": "ingestion_timestamp",
+              "type": "timestamp",
+              "description": "When the row was loaded into bronze"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "namespace": "growth-analytics-pipeline",
+      "name": "bronze.subscription_events",
+      "facets": {
+        "documentation": {
+          "description": "Append-only subscription lifecycle log ingested from subscription_events.jsonl \u2014 the shape billing systems (Stripe, Chargebee) emit. Every plan or seat change carries the MRR before and after, which makes revenue movement analysis a simple delta."
+        },
+        "schema": {
+          "fields": [
+            {
+              "name": "event_id",
+              "type": "integer",
+              "description": "Unique event identifier (monotonic per generation run)"
+            },
+            {
+              "name": "user_id",
+              "type": "integer",
+              "description": "Customer the event belongs to"
+            },
+            {
+              "name": "event_date",
+              "type": "string",
+              "description": "Event date, YYYY-MM-DD"
+            },
+            {
+              "name": "event_type",
+              "type": "string",
+              "description": "subscription_started, plan_upgraded, plan_downgraded, seats_expanded, seats_contracted, or subscription_cancelled"
+            },
+            {
+              "name": "plan",
+              "type": "string",
+              "description": "Plan after the event (null for cancellations)"
+            },
+            {
+              "name": "mrr",
+              "type": "integer",
+              "description": "MRR (USD) after the event; 0 for cancellations"
+            },
+            {
+              "name": "previous_plan",
+              "type": "string",
+              "description": "Plan before the event (null for subscription_started)"
+            },
+            {
+              "name": "previous_mrr",
+              "type": "integer",
+              "description": "MRR (USD) before the event (null for subscription_started)"
+            },
+            {
+              "name": "ingestion_timestamp",
+              "type": "timestamp",
+              "description": "When the row was loaded into bronze"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "namespace": "growth-analytics-pipeline",
+      "name": "bronze.user_signups",
+      "facets": {
+        "documentation": {
+          "description": "Raw user registrations ingested from user_signups.jsonl, partitioned by signup_date. Firmographic attributes (company size, industry) come from the signup form."
+        },
+        "schema": {
+          "fields": [
+            {
+              "name": "user_id",
+              "type": "integer",
+              "description": "Unique user identifier"
+            },
+            {
+              "name": "email",
+              "type": "string",
+              "description": "Signup email (synthetic; excluded from silver for privacy)"
+            },
+            {
+              "name": "signup_date",
+              "type": "string",
+              "description": "Signup date, YYYY-MM-DD (partition column)"
+            },
+            {
+              "name": "company_size",
+              "type": "string",
+              "description": "Company size bucket: 1-10, 11-50, 51-200, 201-1000, 1000+"
+            },
+            {
+              "name": "industry",
+              "type": "string",
+              "description": "Industry: technology, finance, healthcare, retail, education, manufacturing"
+            },
+            {
+              "name": "ingestion_timestamp",
+              "type": "timestamp",
+              "description": "When the row was loaded into bronze"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "namespace": "growth-analytics-pipeline",
+      "name": "silver.silver_feature_states",
+      "facets": {
+        "documentation": {
+          "description": "Slowly Changing Dimension (Type 2) tracking feature version history. Version upgrades close the previous record (effective_to) and open a new current one. Point-in-time state is answered with WHERE date >= effective_from AND date < effective_to."
+        },
+        "schema": {
+          "fields": [
+            {
+              "name": "feature_id",
+              "type": "integer",
+              "description": "Stable feature identifier"
+            },
+            {
+              "name": "feature_name",
+              "type": "string",
+              "description": "Feature machine name"
+            },
+            {
+              "name": "version",
+              "type": "string",
+              "description": "Version label in force during the interval"
+            },
+            {
+              "name": "is_enabled",
+              "type": "boolean",
+              "description": "Whether the feature was enabled (always true in current data)"
+            },
+            {
+              "name": "effective_from",
+              "type": "date",
+              "description": "Start of the validity interval (release date)"
+            },
+            {
+              "name": "effective_to",
+              "type": "date",
+              "description": "End of the validity interval; 9999-12-31 for current records"
+            },
+            {
+              "name": "is_current",
+              "type": "boolean",
+              "description": "True for the record currently in force"
+            },
+            {
+              "name": "record_hash",
+              "type": "string",
+              "description": "md5(feature_name|version) used for change detection"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "namespace": "growth-analytics-pipeline",
+      "name": "silver.silver_feature_usage_facts",
+      "facets": {
+        "documentation": {
+          "description": "Per-user, per-feature usage summary aggregated from raw telemetry. first_used_date is the key column for adoption-before-conversion analysis."
+        },
+        "schema": {
+          "fields": [
+            {
+              "name": "user_id",
+              "type": "integer",
+              "description": "User"
+            },
+            {
+              "name": "feature_id",
+              "type": "integer",
+              "description": "Feature"
+            },
+            {
+              "name": "first_used_date",
+              "type": "date",
+              "description": "First interaction date (adoption moment)"
+            },
+            {
+              "name": "last_used_date",
+              "type": "date",
+              "description": "Most recent interaction date"
+            },
+            {
+              "name": "total_usage_count",
+              "type": "long",
+              "description": "Total interaction events"
+            },
+            {
+              "name": "avg_daily_usage",
+              "type": "double",
+              "description": "total_usage_count / days between first and last use (inclusive)"
+            },
+            {
+              "name": "as_of_date",
+              "type": "date",
+              "description": "Snapshot date the fact table was built"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "namespace": "growth-analytics-pipeline",
+      "name": "silver.silver_subscription_periods",
+      "facets": {
+        "documentation": {
+          "description": "Periodized subscription lifecycle - each row is a (plan, mrr) state valid from period_start until the next event at period_end. Cancellations close the previous period without opening a new one, so churned customers have no active period. Point-in-time revenue questions use WHERE date >= period_start AND date < period_end."
+        },
+        "schema": {
+          "fields": [
+            {
+              "name": "user_id",
+              "type": "integer",
+              "description": "Customer"
+            },
+            {
+              "name": "plan",
+              "type": "string",
+              "description": "Plan in force during the period (pro or enterprise)"
+            },
+            {
+              "name": "mrr",
+              "type": "integer",
+              "description": "MRR (USD) in force during the period"
+            },
+            {
+              "name": "period_start",
+              "type": "date",
+              "description": "Date the state took effect"
+            },
+            {
+              "name": "period_end",
+              "type": "date",
+              "description": "Date the next event superseded it; 9999-12-31 if none"
+            },
+            {
+              "name": "is_active",
+              "type": "boolean",
+              "description": "True for the customer's current, non-cancelled state"
+            },
+            {
+              "name": "change_type",
+              "type": "string",
+              "description": "Subscription event type that opened the period"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "namespace": "growth-analytics-pipeline",
+      "name": "silver.silver_user_dim",
+      "facets": {
+        "documentation": {
+          "description": "The user dimension. Combines signup firmographics, first-touch marketing attribution, and the current commercial state derived from the latest subscription lifecycle event. This is the main join target for user-level analysis."
+        },
+        "schema": {
+          "fields": [
+            {
+              "name": "user_id",
+              "type": "integer",
+              "description": "Unique user identifier"
+            },
+            {
+              "name": "signup_date",
+              "type": "date",
+              "description": "Signup date"
+            },
+            {
+              "name": "company_size",
+              "type": "string",
+              "description": "Company size bucket: 1-10, 11-50, 51-200, 201-1000, 1000+"
+            },
+            {
+              "name": "industry",
+              "type": "string",
+              "description": "Industry vertical"
+            },
+            {
+              "name": "acquisition_channel",
+              "type": "string",
+              "description": "First-touch channel; 'unattributed' when no tracking record exists"
+            },
+            {
+              "name": "acquisition_campaign",
+              "type": "string",
+              "description": "First-touch campaign; 'unattributed' when no tracking record exists"
+            },
+            {
+              "name": "current_plan",
+              "type": "string",
+              "description": "free (never converted), pro, enterprise, or churned (subscription cancelled)"
+            },
+            {
+              "name": "current_mrr",
+              "type": "integer",
+              "description": "MRR (USD) of the active subscription; 0 for free/churned users"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "namespace": "growth-analytics-pipeline",
+      "name": "gold.gold_channel_performance",
+      "facets": {
+        "documentation": {
+          "description": "Acquisition funnel quality per channel per signup cohort - which channels bring users who actually convert, how fast, and at what revenue. Includes the 'unattributed' bucket so totals reconcile with overall signups."
+        },
+        "schema": {
+          "fields": [
+            {
+              "name": "signup_month",
+              "type": "date",
+              "description": "First day of the signup month (cohort)"
+            },
+            {
+              "name": "acquisition_channel",
+              "type": "string",
+              "description": "First-touch channel, or 'unattributed'"
+            },
+            {
+              "name": "signups",
+              "type": "long",
+              "description": "Users who signed up in the cohort"
+            },
+            {
+              "name": "conversions",
+              "type": "long",
+              "description": "Of those, users who later converted to paid"
+            },
+            {
+              "name": "conversion_rate",
+              "type": "double",
+              "description": "conversions / signups"
+            },
+            {
+              "name": "avg_days_to_convert",
+              "type": "double",
+              "description": "Average signup-to-conversion days (converted users only)"
+            },
+            {
+              "name": "total_new_mrr",
+              "type": "long",
+              "description": "Total MRR (USD) acquired from this cohort at conversion"
+            },
+            {
+              "name": "avg_new_mrr",
+              "type": "double",
+              "description": "Average MRR per conversion"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "namespace": "growth-analytics-pipeline",
+      "name": "gold.gold_feature_conversion_impact",
+      "facets": {
+        "documentation": {
+          "description": "Cohort analysis answering \"does feature adoption drive conversion?\". For every feature, users are split into used_feature / available_not_used / not_available cohorts and conversion outcomes are compared across them. The ratio of conversion rates between the first two cohorts is the feature's conversion lift."
+        },
+        "schema": {
+          "fields": [
+            {
+              "name": "feature_name",
+              "type": "string",
+              "description": "Feature machine name"
+            },
+            {
+              "name": "cohort",
+              "type": "string",
+              "description": "used_feature, available_not_used, or not_available"
+            },
+            {
+              "name": "total_users",
+              "type": "long",
+              "description": "Users in the cohort"
+            },
+            {
+              "name": "converted_users",
+              "type": "long",
+              "description": "Users in the cohort who converted to paid"
+            },
+            {
+              "name": "conversion_rate",
+              "type": "double",
+              "description": "converted_users / total_users"
+            },
+            {
+              "name": "avg_days_to_convert",
+              "type": "double",
+              "description": "Average signup-to-conversion days (converted users only)"
+            },
+            {
+              "name": "avg_mrr",
+              "type": "double",
+              "description": "Average MRR at conversion (converted users only)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "namespace": "growth-analytics-pipeline",
+      "name": "gold.gold_mrr_waterfall",
+      "facets": {
+        "documentation": {
+          "description": "Monthly MRR waterfall decomposing revenue growth into new business, expansion, contraction, and churn, with net revenue retention. Internally consistent by construction - ending_mrr = starting_mrr + net_new_mrr every month."
+        },
+        "schema": {
+          "fields": [
+            {
+              "name": "month",
+              "type": "date",
+              "description": "First day of the month"
+            },
+            {
+              "name": "starting_mrr",
+              "type": "long",
+              "description": "MRR at the start of the month (previous month's ending)"
+            },
+            {
+              "name": "new_business_mrr",
+              "type": "long",
+              "description": "MRR from subscriptions started this month"
+            },
+            {
+              "name": "expansion_mrr",
+              "type": "long",
+              "description": "MRR gained from upgrades and seat expansion"
+            },
+            {
+              "name": "contraction_mrr",
+              "type": "long",
+              "description": "MRR lost to downgrades and seat contraction"
+            },
+            {
+              "name": "churned_mrr",
+              "type": "long",
+              "description": "MRR lost to cancellations"
+            },
+            {
+              "name": "net_new_mrr",
+              "type": "long",
+              "description": "new_business + expansion - contraction - churned"
+            },
+            {
+              "name": "ending_mrr",
+              "type": "long",
+              "description": "MRR at the end of the month"
+            },
+            {
+              "name": "new_customers",
+              "type": "long",
+              "description": "Subscriptions started this month"
+            },
+            {
+              "name": "churned_customers",
+              "type": "long",
+              "description": "Subscriptions cancelled this month"
+            },
+            {
+              "name": "net_revenue_retention",
+              "type": "double",
+              "description": "(starting + expansion - contraction - churned) / starting. Excludes new business (standard SaaS NRR). NULL for the first month."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "namespace": "growth-analytics-pipeline",
+      "name": "gold.gold_weekly_engagement",
+      "facets": {
+        "documentation": {
+          "description": "Weekly engagement metrics per feature - weekly active users, event volume, intensity, and each feature's reach as a share of the overall weekly active base (pct_of_wau)."
+        },
+        "schema": {
+          "fields": [
+            {
+              "name": "week_start",
+              "type": "date",
+              "description": "Monday of the ISO week"
+            },
+            {
+              "name": "feature_name",
+              "type": "string",
+              "description": "Feature machine name"
+            },
+            {
+              "name": "active_users",
+              "type": "long",
+              "description": "Distinct users of this feature during the week"
+            },
+            {
+              "name": "total_events",
+              "type": "long",
+              "description": "Usage events for this feature during the week"
+            },
+            {
+              "name": "events_per_active_user",
+              "type": "double",
+              "description": "total_events / active_users (engagement intensity)"
+            },
+            {
+              "name": "weekly_active_users",
+              "type": "long",
+              "description": "Distinct users across ALL features that week (overall WAU)"
+            },
+            {
+              "name": "pct_of_wau",
+              "type": "double",
+              "description": "active_users / weekly_active_users (feature reach)"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "jobs": [
+    {
+      "namespace": "growth-analytics-pipeline",
+      "name": "bronze_conversions",
+      "inputs": [
+        {
+          "namespace": "growth-analytics-pipeline",
+          "name": "raw.data/raw/conversions.jsonl"
+        }
+      ],
+      "outputs": [
+        {
+          "namespace": "growth-analytics-pipeline",
+          "name": "bronze.conversions"
+        }
+      ]
+    },
+    {
+      "namespace": "growth-analytics-pipeline",
+      "name": "bronze_feature_releases",
+      "inputs": [
+        {
+          "namespace": "growth-analytics-pipeline",
+          "name": "raw.data/raw/feature_releases.json"
+        }
+      ],
+      "outputs": [
+        {
+          "namespace": "growth-analytics-pipeline",
+          "name": "bronze.feature_releases"
+        }
+      ]
+    },
+    {
+      "namespace": "growth-analytics-pipeline",
+      "name": "bronze_feature_usage_events",
+      "inputs": [
+        {
+          "namespace": "growth-analytics-pipeline",
+          "name": "raw.data/raw/feature_usage_events.jsonl"
+        }
+      ],
+      "outputs": [
+        {
+          "namespace": "growth-analytics-pipeline",
+          "name": "bronze.feature_usage_events"
+        }
+      ]
+    },
+    {
+      "namespace": "growth-analytics-pipeline",
+      "name": "bronze_marketing_attribution",
+      "inputs": [
+        {
+          "namespace": "growth-analytics-pipeline",
+          "name": "raw.data/raw/marketing_attribution.jsonl"
+        }
+      ],
+      "outputs": [
+        {
+          "namespace": "growth-analytics-pipeline",
+          "name": "bronze.marketing_attribution"
+        }
+      ]
+    },
+    {
+      "namespace": "growth-analytics-pipeline",
+      "name": "bronze_subscription_events",
+      "inputs": [
+        {
+          "namespace": "growth-analytics-pipeline",
+          "name": "raw.data/raw/subscription_events.jsonl"
+        }
+      ],
+      "outputs": [
+        {
+          "namespace": "growth-analytics-pipeline",
+          "name": "bronze.subscription_events"
+        }
+      ]
+    },
+    {
+      "namespace": "growth-analytics-pipeline",
+      "name": "bronze_user_signups",
+      "inputs": [
+        {
+          "namespace": "growth-analytics-pipeline",
+          "name": "raw.data/raw/user_signups.jsonl"
+        }
+      ],
+      "outputs": [
+        {
+          "namespace": "growth-analytics-pipeline",
+          "name": "bronze.user_signups"
+        }
+      ]
+    },
+    {
+      "namespace": "growth-analytics-pipeline",
+      "name": "silver_feature_states",
+      "inputs": [
+        {
+          "namespace": "growth-analytics-pipeline",
+          "name": "bronze.feature_releases"
+        }
+      ],
+      "outputs": [
+        {
+          "namespace": "growth-analytics-pipeline",
+          "name": "silver.silver_feature_states"
+        }
+      ]
+    },
+    {
+      "namespace": "growth-analytics-pipeline",
+      "name": "silver_feature_usage_facts",
+      "inputs": [
+        {
+          "namespace": "growth-analytics-pipeline",
+          "name": "bronze.feature_usage_events"
+        }
+      ],
+      "outputs": [
+        {
+          "namespace": "growth-analytics-pipeline",
+          "name": "silver.silver_feature_usage_facts"
+        }
+      ]
+    },
+    {
+      "namespace": "growth-analytics-pipeline",
+      "name": "silver_subscription_periods",
+      "inputs": [
+        {
+          "namespace": "growth-analytics-pipeline",
+          "name": "bronze.subscription_events"
+        }
+      ],
+      "outputs": [
+        {
+          "namespace": "growth-analytics-pipeline",
+          "name": "silver.silver_subscription_periods"
+        }
+      ]
+    },
+    {
+      "namespace": "growth-analytics-pipeline",
+      "name": "silver_user_dim",
+      "inputs": [
+        {
+          "namespace": "growth-analytics-pipeline",
+          "name": "bronze.user_signups"
+        },
+        {
+          "namespace": "growth-analytics-pipeline",
+          "name": "bronze.marketing_attribution"
+        },
+        {
+          "namespace": "growth-analytics-pipeline",
+          "name": "bronze.subscription_events"
+        }
+      ],
+      "outputs": [
+        {
+          "namespace": "growth-analytics-pipeline",
+          "name": "silver.silver_user_dim"
+        }
+      ]
+    },
+    {
+      "namespace": "growth-analytics-pipeline",
+      "name": "gold_channel_performance",
+      "inputs": [
+        {
+          "namespace": "growth-analytics-pipeline",
+          "name": "silver.silver_user_dim"
+        },
+        {
+          "namespace": "growth-analytics-pipeline",
+          "name": "bronze.conversions"
+        }
+      ],
+      "outputs": [
+        {
+          "namespace": "growth-analytics-pipeline",
+          "name": "gold.gold_channel_performance"
+        }
+      ]
+    },
+    {
+      "namespace": "growth-analytics-pipeline",
+      "name": "gold_feature_conversion_impact",
+      "inputs": [
+        {
+          "namespace": "growth-analytics-pipeline",
+          "name": "silver.silver_user_dim"
+        },
+        {
+          "namespace": "growth-analytics-pipeline",
+          "name": "silver.silver_feature_states"
+        },
+        {
+          "namespace": "growth-analytics-pipeline",
+          "name": "silver.silver_feature_usage_facts"
+        },
+        {
+          "namespace": "growth-analytics-pipeline",
+          "name": "bronze.conversions"
+        }
+      ],
+      "outputs": [
+        {
+          "namespace": "growth-analytics-pipeline",
+          "name": "gold.gold_feature_conversion_impact"
+        }
+      ]
+    },
+    {
+      "namespace": "growth-analytics-pipeline",
+      "name": "gold_mrr_waterfall",
+      "inputs": [
+        {
+          "namespace": "growth-analytics-pipeline",
+          "name": "bronze.subscription_events"
+        }
+      ],
+      "outputs": [
+        {
+          "namespace": "growth-analytics-pipeline",
+          "name": "gold.gold_mrr_waterfall"
+        }
+      ]
+    },
+    {
+      "namespace": "growth-analytics-pipeline",
+      "name": "gold_weekly_engagement",
+      "inputs": [
+        {
+          "namespace": "growth-analytics-pipeline",
+          "name": "bronze.feature_usage_events"
+        }
+      ],
+      "outputs": [
+        {
+          "namespace": "growth-analytics-pipeline",
+          "name": "gold.gold_weekly_engagement"
+        }
+      ]
+    }
+  ]
+}
