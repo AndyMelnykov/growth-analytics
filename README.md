@@ -1,771 +1,304 @@
 # AI Product Analytics Graph
 
-> Turn raw product usage events into behavioral graphs, evidence-backed insights, and testable product hypotheses.
+> Turn raw product usage events into behavioral graphs, evidence-backed
+> insights, and testable product hypotheses.
 
-This project explores whether graph-based behavioral modeling can help product teams discover relationships that are difficult to see in traditional funnels, dashboards, and cohort reports.
+This project explores whether graph-based behavioral modeling can help product
+teams discover relationships that are difficult to see in traditional funnels,
+dashboards, and cohort reports. The system is designed to reconstruct customer
+journeys, calculate metrics deterministically, represent behavioral
+relationships as a graph, and give an AI analyst structured access to evidence.
 
-The system reconstructs customer journeys from product usage events, calculates behavioral relationships deterministically, represents those relationships as a graph, and gives an AI analyst structured access to the resulting evidence.
+The goal is not to replace conventional product analytics. It is to add a
+relationship-discovery layer that helps teams move from metrics to
+observations, hypotheses, and experiments.
 
-The goal is not to replace conventional product analytics. It is to add a relationship-discovery layer that helps product teams move from metrics to observations, hypotheses, and experiments.
+## Current status
 
----
+The repository currently contains a synthetic raw-data snapshot and the design
+documentation for the planned platform. The data and documentation support the
+source model and target analytical outputs, but the executable transformation
+pipeline, graph model, chatbot, and materialized Bronze, Silver, and Gold
+tables have not been added yet.
 
 ## Problem
 
-Product teams collect detailed behavioral data such as:
-
-- signup
-- workspace creation
-- feature usage
-- integrations
-- invitations
-- project creation
-- exports
-- upgrades
-- cancellations
-
-Traditional analytics tools are effective when the question is already known:
+Traditional analytics is effective when the question is already known:
 
 - What is signup-to-paid conversion?
-- Where does a funnel drop?
 - Which features have the highest adoption?
-- What is D30 retention?
+- What is the MRR movement this month?
+- Which acquisition channels produce paying customers?
 
-They are less effective at exploring broader relationship questions:
+It is less effective for relationship questions:
 
-- Which behaviors distinguish activated users from users who fail to activate?
-- Which event sequences are associated with conversion?
+- Which feature behaviors distinguish converters from non-converters?
 - Do different customer segments follow different successful journeys?
-- Which features appear as bridges between activation and retention?
-- Which high-intent users still fail to convert, and where?
-- Which combinations of behavior deserve a product experiment?
-
-Answering these questions manually usually requires repeated SQL analysis, segmentation, funnel definitions, and analyst investigation.
+- Which behaviors connect adoption, conversion, and retention?
+- Where do high-intent users abandon their journey?
+- Which observed relationship deserves a product experiment?
 
 The core product question is:
 
-> Can product usage data be transformed into a behavioral graph that an AI analyst can investigate to identify evidence-backed product opportunities?
-
----
+> Can product usage data be transformed into a behavioral graph that an AI
+> analyst can investigate to identify evidence-backed growth opportunities?
 
 ## Product
 
-The system converts raw product usage data into a graph of customer journeys, behavioral relationships, product outcomes, and supporting metrics.
+The planned system will:
 
-A typical workflow:
+1. Load usage events and supporting user, feature, attribution, and subscription
+	 data.
+2. Normalize the sources and reconstruct customer journeys.
+3. Calculate canonical product and revenue metrics deterministically.
+4. Detect transitions, sequences, co-occurrence, and outcome relationships.
+5. Build a behavioral graph with evidence-bearing edges.
+6. Give an AI analyst access to relevant graph neighborhoods and metrics.
+7. Produce observations, product hypotheses, and candidate experiments.
+8. Preserve the evidence behind every AI-generated conclusion.
 
-1. Load product events and supporting user, account, plan, or subscription data.
-2. Normalize events into a consistent schema.
-3. Reconstruct sessions and customer journeys.
-4. Calculate canonical product metrics deterministically.
-5. Detect transitions, sequences, co-occurrence, and outcome relationships.
-6. Build a behavioral graph.
-7. Use Graphify to represent and visualize graph structure.
-8. Give an AI analyst access to relevant graph neighborhoods and metrics.
-9. Generate observations, product hypotheses, and candidate experiments.
-10. Preserve the evidence behind every AI-generated conclusion.
+An output should look like this:
 
-The intended output is not:
+**Observation:** Users who adopt a feature before conversion convert at a
+different rate from the relevant baseline.
 
-> Feature X seems important.
+**Evidence:** The system shows the cohort size, adoption timing, conversion
+rate, MRR, and segment differences used to reach the observation.
 
-It should instead produce a structured analysis:
+**Interpretation:** The AI proposes plausible explanations without presenting
+correlation as causation.
 
-**Observation**  
-Users who perform a specific sequence of actions convert at a materially different rate from the baseline.
+**Hypothesis:** A specific product change may help more users reach the
+valuable behavior.
 
-**Evidence**  
-The system shows the path, cohort size, transition rates, outcome rates, and relevant segment differences.
+**Experiment:** The system proposes a primary metric, secondary metrics, and a
+guardrail.
 
-**Interpretation**  
-The AI proposes one or more plausible product explanations without presenting correlation as causation.
+## Data in this repository
 
-**Hypothesis**  
-A specific product change may increase the probability that more users reach the valuable behavior.
+The raw snapshot is synthetic and intended for development and demonstration,
+not as a benchmark for real-world SaaS performance.
 
-**Experiment**  
-The system proposes a test, primary metric, secondary metric, and guardrail.
+| Source | Grain | Planned use |
+| --- | --- | --- |
+| `data/raw/user_signups.jsonl` | One user signup | User dimension, signup cohorts, firmographics |
+| `data/raw/feature_usage_events.jsonl` | One feature interaction | Usage facts, weekly engagement, journeys |
+| `data/raw/feature_releases.json` | One feature release or upgrade | Feature version history and availability |
+| `data/raw/marketing_attribution.jsonl` | One first-touch attribution | Channel performance and acquisition cohorts |
+| `data/raw/conversions.jsonl` | One free-to-paid conversion | Conversion outcomes and time to convert |
+| `data/raw/subscription_events.jsonl` | One subscription lifecycle event | Periodized subscriptions, churn, expansion, and MRR |
 
----
+The source files connect through `user_id`; feature usage and releases connect
+through `feature_id`. This supports the documented questions about adoption,
+conversion, acquisition quality, subscription movement, and engagement.
 
-## Demo
+`data/raw/_feature_users_metadata.json` is an auxiliary legacy artifact. It is
+not part of the documented lineage or table contracts and should not be used as
+a pipeline source until its schema and purpose are formally documented.
 
-The demo should make the project understandable before the reader inspects the code.
+The current files are inputs only. The paths such as `data/bronze`,
+`data/silver`, and `data/gold` in the data dictionary describe target outputs,
+not directories currently present in the repository.
 
-Example questions:
-
-### Activation
-
-> Which early behaviors most clearly distinguish activated from non-activated users?
-
-### Conversion
-
-> What actions or event sequences are most strongly associated with trial-to-paid conversion?
-
-### Retention
-
-> Which behaviors in the first week are disproportionately present among users retained after 30 days?
-
-### Journey discovery
-
-> What are the most common successful paths from signup to a key product outcome?
-
-### Drop-off
-
-> Where do high-intent users appear to abandon their journey?
-
-### Segmentation
-
-> Do different customer segments follow materially different successful paths?
-
-### Opportunity discovery
-
-> Where do high traffic, high drop-off, and strong downstream value occur together?
-
-Recommended demo assets:
-
-- one behavioral graph screenshot
-- one AI analysis with visible evidence
-- one journey comparison
-- one short trace showing how the analyst reached its conclusion
-- one evaluation result
-
----
-
-## Architecture
+## Target architecture
 
 ```mermaid
 flowchart TD
-    A[Product Event Data] --> B[Ingestion and Normalization]
-    B --> C[Journey Reconstruction]
-
-    C --> D[Metric Engine]
-    C --> E[Relationship Analysis]
-
-    D --> F[Behavioral Graph]
-    E --> F
-
-    F --> G[Graphify]
-    F --> H[Graph Query Layer]
-
-    G --> I[AI Product Analyst]
-    H --> I
-    D --> I
-
-    I --> J[Observations]
-    J --> K[Hypotheses]
-    K --> L[Experiment Suggestions]
-    L --> M[Human Review]
+		A[Raw SaaS sources] --> B[Bronze ingestion]
+		B --> C[Silver conformed entities]
+		C --> D[Gold metrics and marts]
+		C --> E[Journey and relationship analysis]
+		D --> F[Behavioral graph]
+		E --> F
+		F --> G[AI product analyst]
+		D --> G
+		G --> H[Evidence-backed hypotheses]
+		H --> I[Human-reviewed experiments]
 ```
+
+The planned medallion layers are:
+
+- **Bronze:** source records landed with ingestion metadata.
+- **Silver:** user dimensions, feature states, usage facts, and periodized
+	subscription states.
+- **Gold:** channel performance, feature-conversion impact, MRR waterfall, and
+	weekly engagement marts.
 
 The architecture deliberately separates measurement from interpretation.
+Canonical metrics and relationship calculations should be produced by
+deterministic code. The AI should investigate, explain, and generate
+hypotheses, not silently recalculate business metrics from raw events.
 
-Canonical metrics, counts, rates, cohorts, and relationship calculations are produced by deterministic code.
+## Analytical workflows
 
-The AI is used for investigation, synthesis, explanation, and hypothesis generation.
+### Journey reconstruction
 
----
+Events will be ordered into user journeys so the system can compare paths,
+transition frequencies, time between steps, successful journeys, abandoned
+journeys, and repeated loops. The current event source provides timestamps,
+users, features, and event types; explicit session identifiers are not present
+in the snapshot, so session reconstruction will need a defined time-window
+rule.
 
-## Core Workflows
+### Deterministic metrics
 
-### 1. Event ingestion
+The documented marts provide the first governed metric surface:
 
-Input data is normalized into a common event structure.
+- channel signups, conversions, conversion rate, and new MRR;
+- feature adoption and conversion outcomes by cohort;
+- new business, expansion, contraction, churn, and NRR;
+- weekly active users, event volume, and engagement intensity.
 
-Example:
+### Relationship discovery
 
-```json
-{
-  "user_id": "u_1842",
-  "event": "workspace_created",
-  "timestamp": "2026-04-12T14:32:10Z",
-  "session_id": "s_821",
-  "properties": {
-    "device": "desktop"
-  }
-}
-```
+The graph can later represent relationships such as:
 
-Supporting data may include:
+- `PRECEDES` between journey behaviors;
+- `CO_OCCURS_WITH` between features;
+- `ASSOCIATED_WITH` conversion or retention outcomes;
+- `DROPS_BEFORE` abandonment points;
+- segment-specific behavior and outcome differences.
 
-- users
-- accounts
-- plans
-- subscriptions
-- experiments
-- acquisition channel
-- company attributes
+Edges should carry evidence such as user count, transition rate, conversion or
+retention rate, lift, time window, and segment. The graph complements the event
+store; it does not replace it.
 
-The architecture is intentionally not coupled to one specific source dataset.
+## AI and trust model
 
-### 2. Journey reconstruction
+The AI analyst should receive structured context: metric definitions, governed
+results, relevant graph neighborhoods, relationship evidence, and segment
+information. It should not receive an unrestricted raw event stream as its
+primary analytical interface.
 
-Events are ordered into user journeys and sessions.
+The model may summarize evidence, compare relationships, explain possible
+interpretations, and generate candidate hypotheses. Human review remains
+required for causal interpretations, strategic conclusions, and experiment
+recommendations.
 
-Example:
-
-```text
-signup
-  ↓
-workspace_created
-  ↓
-integration_connected
-  ↓
-project_created
-  ↓
-feature_used
-  ↓
-subscription_started
-```
-
-The system can calculate:
-
-- event transitions
-- path frequencies
-- time between steps
-- successful journeys
-- abandoned journeys
-- repeated loops
-- path differences between cohorts
-
-### 3. Deterministic product metrics
-
-Canonical metrics are calculated in code or SQL.
-
-Examples:
-
-- activation rate
-- trial-to-paid conversion
-- D7 retention
-- D30 retention
-- feature adoption
-- churn rate
-- time to activation
-- time to value
-- revenue metrics where available
-
-These calculations are the source of truth.
-
-The AI does not independently calculate canonical business metrics from raw event text.
-
-### 4. Relationship discovery
-
-The system looks beyond predefined funnels.
-
-Possible analyses include:
-
-**Sequential relationships**
+Every insight should preserve this chain:
 
 ```text
-A → B
-A → B → C
-A → C → D
+Raw events -> calculated metric -> derived relationship -> graph evidence
+					 -> AI interpretation -> product hypothesis -> human decision
 ```
 
-**Behavioral co-occurrence**
+Correlation is not causal proof. Sparse data, instrumentation gaps, common
+events, and threshold choices can all produce misleading relationships.
 
-```text
-Feature A ↔ Feature C
-```
+## Demo questions
 
-**Outcome relationships**
+The intended demo should answer questions such as:
 
-```text
-Behavior A → higher conversion
-Behavior B → higher retention
-Path X → lower churn
-```
+- Which early behaviors distinguish users who convert from those who do not?
+- Which features are associated with higher conversion or retention?
+- Which acquisition channels bring customers with stronger downstream value?
+- How does MRR change through new business, expansion, contraction, and churn?
+- Where do high-intent users appear to abandon their journey?
+- Do different company sizes or industries follow different successful paths?
 
-**Segment differences**
+The data snapshot supports the first four questions directly through the
+documented marts. Journey abandonment and richer path comparisons require the
+journey and graph layers to be implemented.
 
-```text
-Segment A:
-signup → template → project → paid
+## Why a graph and an AI analyst?
 
-Segment B:
-signup → integration → invite → project → paid
-```
+Tables and SQL are excellent for aggregation. Graphs are useful when the
+question is about relationships: what tends to happen before an outcome,
+which behaviors connect adoption and conversion, and which paths distinguish
+successful users.
 
-Only relationships that meet defined evidence thresholds should be added to the graph.
+The graph is an additional analytical representation, not a replacement for
+the event store or governed metrics. Raw event streams are large and
+repetitive, so the pipeline should reduce behavior to structured evidence
+before an AI model interprets it.
 
-### 5. Graph construction
+The core boundary is:
 
-The graph represents product behavior as relationships rather than only rows and aggregates.
-
-Possible node types:
-
-- Event
-- Feature
-- JourneyStage
-- UserSegment
-- Plan
-- AcquisitionChannel
-- Experiment
-- Metric
-- Outcome
-- Hypothesis
-
-Possible relationship types:
-
-- PRECEDES
-- FOLLOWED_BY
-- CO_OCCURS_WITH
-- USED_BY
-- OVER_INDEXES_ON
-- ASSOCIATED_WITH
-- CONVERTS_TO
-- DROPS_BEFORE
-- RETAINED_AFTER
-- EXPOSED_TO
-
-Edges can carry evidence such as:
-
-- user count
-- transition rate
-- median time between events
-- conversion rate
-- retention rate
-- lift
-- confidence
-- segment
-- observation window
-
-Graphify is used for graph representation and visualization.
-
-The graph complements the underlying event store rather than replacing it.
-
-### 6. AI investigation
-
-The AI analyst receives structured context such as:
-
-- product definitions
-- event taxonomy
-- metric definitions
-- relevant graph neighborhood
-- relationship evidence
-- segment information
-- statistical summaries
-- experiment context where available
-
-Instead of sending large raw event streams to the model, the system provides the smallest useful evidence set for the current question.
-
-The AI can then:
-
-- compare relationships
-- navigate neighboring nodes
-- connect evidence across metrics
-- identify unusual paths
-- explain possible interpretations
-- generate product hypotheses
-- propose experiments
-
----
-
-## AI Design Decisions
-
-| Decision | Choice | Why |
-|---|---|---|
-| Metric calculation | Deterministic | Canonical metrics must be reproducible |
-| Relationship calculation | Deterministic | Evidence should not depend on LLM interpretation |
-| Graph model | Structured | Relationships become explicit and traversable |
-| Graph layer | Graphify | Provides graph representation and visualization |
-| Product interpretation | LLM | Interpretation requires contextual reasoning and synthesis |
-| Hypothesis generation | LLM | Several plausible explanations may exist |
-| Context strategy | Graph + metrics | Reduces context size while preserving evidence |
-| Final product decisions | Human-reviewed | Correlation is not sufficient for autonomous decision-making |
-| Agent architecture | Single analyst first | Easier to evaluate, trace, and improve |
-
-The core principle is:
-
-> Use deterministic systems for facts and calculations. Use the model for interpretation.
-
-### Why a graph?
-
-Tables and SQL are excellent for aggregation.
-
-Graphs are useful when the question is about relationships:
-
-- What tends to happen before a key outcome?
-- Which behaviors connect activation and retention?
-- Which events act as bridges between journey stages?
-- Which paths distinguish successful users?
-- Which features occur together in high-value journeys?
-
-The graph is an additional analytical representation, not a replacement for conventional analytics.
-
-### Why not send raw events directly to the LLM?
-
-Raw event streams are:
-
-- large
-- repetitive
-- expensive as context
-- difficult to reason about reliably
-- poor at preserving exact statistical relationships
-
-The pipeline reduces raw behavior into structured evidence before the model interprets it.
-
-### Why AI?
-
-The difficult part is not calculating another funnel.
-
-The difficult part is investigating a connected evidence space and turning observations into useful product hypotheses.
-
-That is where the model adds value.
-
----
-
-## Safety and Trust Model
-
-This system does not execute product changes autonomously.
-
-Its main risks are analytical rather than operational:
-
-- overstating correlation as causation
-- inventing unsupported explanations
-- ignoring contradictory evidence
-- misreading sparse data
-- presenting model interpretation as measured fact
-
-### Autonomous
-
-The system may:
-
-- ingest data
-- reconstruct journeys
-- calculate metrics
-- calculate transitions
-- construct graph relationships
-- retrieve graph neighborhoods
-- summarize evidence
-- generate candidate hypotheses
-
-### Requires human review
-
-A human should review:
-
-- causal interpretations
-- strategic product conclusions
-- experiment recommendations
-- prioritization suggestions
-
-### Not trusted to the model
-
-The model should not:
-
-- redefine canonical metrics silently
-- invent missing data
-- modify source data
-- hide contradictory evidence
-- present unsupported relationships as facts
-- treat statistical association as causal proof
-
-The intended boundary is:
-
-> Give the model analytical autonomy, not product decision authority.
-
-### Provenance
-
-Every insight should preserve the chain from source data to recommendation:
-
-```text
-Raw events
-    ↓
-Calculated metric
-    ↓
-Derived relationship
-    ↓
-Graph evidence
-    ↓
-AI interpretation
-    ↓
-Product hypothesis
-    ↓
-Human decision
-```
-
-A reviewer should always be able to answer:
-
-> Why did the system say this?
-
----
+> Use deterministic systems for facts and calculations. Use the model for
+> interpretation and hypothesis generation.
 
 ## Evaluation
 
-A convincing demo is not enough.
-
-The project should include reproducible evaluation for both the analytical layer and the AI layer.
+A convincing demo is not enough. The analytical and AI layers should have
+reproducible evaluation.
 
 ### Relationship evaluation
 
-If the selected synthetic dataset contains known embedded behavioral patterns, the system can be tested on whether it rediscovers them.
+The synthetic data is intended to contain known signals, including feature
+adoption effects on conversion, channel differences, and retention patterns.
+Evaluation should measure:
 
-Potential metrics:
+- relationship precision and recall;
+- recovery of known paths and segments;
+- ranking quality for surfaced opportunities;
+- false high-confidence relationships.
 
-- relationship precision
-- relationship recall
-- path recovery
-- segment recovery
-- ranking quality
-- false high-confidence relationships
-
-Example evaluation format:
-
-```text
-Known relationships:        TBD
-Correctly discovered:       TBD
-Missed:                     TBD
-False high-confidence:      TBD
-```
-
-Only actual measured results should be published.
+Only measured results should be published. The current repository contains the
+raw snapshot and design decisions, not an evaluation runner or benchmark.
 
 ### AI insight evaluation
 
-Candidate rubric:
-
-**Grounding**  
-Is the insight supported by graph or metric evidence?
-
-**Numerical fidelity**  
-Does the explanation preserve calculated values correctly?
-
-**Causality discipline**  
-Does the analysis distinguish association from causation?
-
-**Product relevance**  
-Does the hypothesis suggest a plausible product intervention?
-
-**Experiment quality**  
-Is the proposed experiment logically connected to the observed behavior?
-
-**Metric quality**  
-Are success and guardrail metrics appropriate?
-
-**Evidence completeness**  
-Does the analysis acknowledge contradictory or weak evidence where relevant?
-
-### Evaluation structure
-
-```text
-evals/
-├── cases/
-├── expected/
-├── rubrics/
-├── runner.py
-└── README.md
-```
-
-Each case should define:
-
-- question
-- available evidence
-- expected observations
-- acceptable interpretations
-- unsupported conclusions
-- scoring criteria
-
----
+Candidate criteria include grounding in evidence, numerical fidelity,
+causality discipline, product relevance, experiment quality, and completeness
+of evidence references.
 
 ## Observability
 
-Every AI analysis should produce a trace.
+Every future AI analysis should produce a trace containing the user question,
+metric and graph queries, retrieved evidence, model calls, errors, latency,
+token usage, final evidence, and generated hypothesis. Sensitive values should
+be redacted.
 
-A trace should capture:
+The objective is to make the analytical process inspectable rather than present
+an unexplained AI insight.
 
-- user question
-- analytical goal
-- metric queries
-- graph queries
-- retrieved nodes
-- retrieved edges
-- model calls
-- errors
-- retries
-- latency
-- token usage
-- final evidence
-- generated hypothesis
+## Documentation
 
-Example flow:
+- [Data dictionary](docs/data_dictionary.md): target Bronze, Silver, and Gold
+	schemas, grains, columns, and upstreams.
+- [Data lineage](docs/lineage.md): target flow from raw files to analytical
+	marts; [lineage.json](docs/lineage.json) is the machine-readable version.
+- [Architecture decisions](docs/adr/): decisions about lakehouse layers,
+	validation, orchestration, synthetic signals, subscription modeling,
+	contracts, semantic metrics, and the chatbot.
+- [Project references](references.md): related open-source projects and tools.
 
-```text
-Question
-  ↓
-Metric query
-  ↓
-Graph query
-  ↓
-Relevant relationships
-  ↓
-Additional investigation
-  ↓
-AI interpretation
-  ↓
-Hypothesis
-  ↓
-Evidence references
-```
-
-The objective is to make the analytical process inspectable rather than presenting unexplained "AI insights."
-
-Sensitive values should be redacted from traces.
-
----
-
-## Running Locally
-
-Target setup:
-
-```bash
-git clone <repository-url>
-cd ai-product-analytics-graph
-
-python -m venv .venv
-source .venv/bin/activate
-
-pip install -r requirements.txt
-
-cp .env.example .env
-
-python scripts/load_sample_data.py
-python scripts/build_graph.py
-python app.py
-```
-
-Exact commands will be finalized with the implementation.
-
-The repository should include safe sample data so that the core demo can be inspected without access to a proprietary analytics platform.
-
----
-
-## Limitations
-
-This project is an analytical prototype, not a causal inference engine.
-
-Known limitations include:
-
-- correlation does not establish causality
-- synthetic data may contain cleaner patterns than real products
-- instrumentation quality directly affects analysis quality
-- sparse events can produce misleading relationships
-- common events may dominate graph structure
-- graph complexity grows with event vocabulary
-- threshold choices influence discovered relationships
-- AI interpretation can still overstate ambiguous evidence
-- product hypotheses still require validation through experiments or research
-
-The graph should therefore be treated as a hypothesis-discovery mechanism, not an automated product decision system.
-
----
+The data dictionary and lineage are design artifacts generated from contracts
+in the target architecture. The contracts, generation scripts, transformation
+jobs, semantic layer, and chatbot are not present yet, so the documentation
+should be read as the implementation specification.
 
 ## Roadmap
 
-### Phase 1: Behavioral foundation
+### Phase 1: Data foundation
 
-- select public or synthetic product event dataset
-- normalize events
-- reconstruct journeys
-- calculate activation, conversion, retention, and churn
-- generate transition graph
+- Add source contracts and a reproducible synthetic-data generator.
+- Add Bronze ingestion and raw-data validation.
+- Build the Silver user, feature, usage, and subscription models.
 
-### Phase 2: Relationship graph
+### Phase 2: Metrics and relationships
 
-- sequence analysis
-- co-occurrence analysis
-- segment-specific relationships
-- weighted graph edges
-- Graphify visualization
-- graph querying
+- Build the documented Gold marts.
+- Add journey reconstruction and transition analysis.
+- Create weighted graph nodes and edges with evidence.
 
-### Phase 3: AI Product Analyst
+### Phase 3: AI product analyst
 
-- natural-language analysis
-- graph-neighborhood retrieval
-- evidence-backed observations
-- hypothesis generation
-- experiment suggestions
-- evidence citations
+- Add governed metric and graph retrieval.
+- Generate evidence-backed observations and hypotheses.
+- Capture query and reasoning traces for review.
 
 ### Phase 4: Evaluation
 
-- synthetic ground-truth benchmark
-- relationship discovery benchmark
-- AI insight rubric
-- regression suite
-- trace evaluation
+- Test recovery of the synthetic signals described in
+	[ADR 0004](docs/adr/0004-synthetic-data-with-engineered-signals.md).
+- Add relationship precision, recall, and false-confidence checks.
+- Evaluate AI grounding, numerical fidelity, causality discipline, and
+	experiment quality.
 
-### Phase 5: Deeper product intelligence
+## Limitations
 
-Potential additions:
-
-- experiment-result relationships
-- temporal graph changes
-- cohort comparison
-- anomaly detection
-- graph community detection
-- feature centrality analysis
-- churn-path analysis
-- opportunity scoring
-- MCP interface for external AI agents
-
----
-
-## Repository Structure
-
-```text
-/
-├── README.md
-├── LICENSE
-├── CHANGELOG.md
-├── ROADMAP.md
-│
-├── data/
-│   ├── sample/
-│   └── README.md
-│
-├── src/
-│   ├── ingestion/
-│   ├── journeys/
-│   ├── metrics/
-│   ├── relationships/
-│   ├── graph/
-│   └── analyst/
-│
-├── sql/
-│   ├── activation.sql
-│   ├── conversion.sql
-│   └── retention.sql
-│
-├── knowledge/
-│   ├── event_taxonomy.md
-│   ├── metric_definitions.md
-│   └── product_context.md
-│
-├── evals/
-│   ├── cases/
-│   ├── expected/
-│   └── runner.py
-│
-├── examples/
-├── docs/
-│   ├── architecture.md
-│   ├── decisions/
-│   └── images/
-│
-├── tests/
-├── scripts/
-└── .env.example
-```
-
----
-
-## What This Project Explores
-
-The project is ultimately testing one idea:
-
-> Can graph-based behavioral modeling give AI a better representation of product usage than dashboards, isolated funnels, or raw event streams alone?
-
-If successful, the result is not another analytics dashboard.
-
-It is an AI product analyst that can investigate how product behaviors relate, explain the evidence it finds, and turn those observations into testable product hypotheses.
+This is an analytical prototype, not a causal inference engine. Synthetic data
+may contain cleaner patterns than real products, and graph thresholds influence
+which relationships are surfaced. Product hypotheses still require validation
+through experiments and qualitative research.
