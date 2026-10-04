@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "growth-analytics"
+version = "0.1.0"
+description = "AI product analytics graph: synthetic growth data, analytics and graph analysis"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+graph = ["neo4j>=6.3,<6.4"]
+dev = ["pytest>=8"]
+
+[tool.setuptools.packages.find]
+include = ["graph*"]
+
+[tool.pytest.ini_options]
+testpaths = ["graph/tests"]
+markers = [
+    "integration: needs a running Memgraph (docker compose up -d)",
+]
