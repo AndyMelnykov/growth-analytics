@@ -1,0 +1,46 @@
+name: growth-analytics
+
+services:
+  memgraph:
+    image: memgraph/memgraph-mage:${MEMGRAPH_IMAGE_TAG:?set MEMGRAPH_IMAGE_TAG in .env}
+    command:
+      - "--memory-limit=3072"
+      - "--storage-wal-enabled=true"
+      - "--storage-snapshot-interval-sec=300"
+      - "--log-level=WARNING"
+      - "--also-log-to-stderr=true"
+    ports:
+      - "127.0.0.1:${MEMGRAPH_PORT:-7687}:7687"
+    volumes:
+      - memgraph_data:/var/lib/memgraph
+    # Memgraph creates this admin user at first start (empty auth store only),
+    # which turns authentication on. Credentials come from .env.
+    environment:
+      MEMGRAPH_USER: ${MEMGRAPH_USER:?set MEMGRAPH_USER in .env}
+      MEMGRAPH_PASSWORD: ${MEMGRAPH_PASSWORD:?set MEMGRAPH_PASSWORD in .env}
+    mem_limit: 4g
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - echo 'RETURN 1;' | mgconsole --username "$$MEMGRAPH_USER" --password "$$MEMGRAPH_PASSWORD" || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
+
+  lab:
+    image: memgraph/lab:${LAB_IMAGE_TAG:?set LAB_IMAGE_TAG in .env}
+    profiles: ["ui"]
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      QUICK_CONNECT_MG_HOST: memgraph
+      QUICK_CONNECT_MG_PORT: "7687"
+    depends_on:
+      memgraph:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  memgraph_data:
