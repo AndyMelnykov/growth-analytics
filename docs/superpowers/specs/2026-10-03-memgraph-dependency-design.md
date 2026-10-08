@@ -1,7 +1,7 @@
 # Memgraph as a dependency: design
 
 Date: 2026-10-03
-Status: Draft, awaiting review
+Status: Approved; implemented by plan 2026-10-04
 
 ## Goal
 
@@ -128,9 +128,19 @@ would add a large C++ codebase with no benefit. We run `memgraph/memgraph-mage`
 3. The rest of the repo installs and runs without Docker or the `graph` extra.
 4. No credentials are committed.
 
-## Open questions
-- Packaging: no `pyproject.toml` or requirements file exists yet. At plan time,
-  choose between creating `pyproject.toml` with a `graph` extra or a standalone
-  `requirements-graph.txt`.
-- Image tag: confirm the latest stable `memgraph-mage` tag at implementation
-  time rather than guessing it here.
+## Resolved decisions
+- Packaging: `pyproject.toml` with an optional `graph` extra (`neo4j` pinned to
+  a minor range), plus a `dev` extra for pytest.
+- Image tag: resolved at implementation time. `memgraph/memgraph-mage:3.13.1`
+  and `memgraph/lab:3.13.2`, both set in `.env.example`.
+- Admin user: created by Memgraph itself at first start from `MEMGRAPH_USER` /
+  `MEMGRAPH_PASSWORD` passed to the `memgraph` service, instead of a separate
+  init service (D4 allowed either).
+
+## Findings after review
+Community Memgraph is licensed under BSL; Memgraph Enterprise (MEL) adds high
+availability, multi-tenancy, fine-grained access control, SSO, encryption in
+transit, and backup/restore. TLS and backup/restore are therefore Enterprise
+features: the "TLS" and "backups" items under production considerations need a
+license or a proxy/external tooling, not just configuration. Recorded in
+[ADR 0008](../../adr/0008-memgraph-graph-analysis.md).
