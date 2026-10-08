@@ -19,7 +19,9 @@ The repository currently contains a synthetic raw-data snapshot and the design
 documentation for the planned platform. The data and documentation support the
 source model and target analytical outputs, but the executable transformation
 pipeline, graph model, chatbot, and materialized Bronze, Silver, and Gold
-tables have not been added yet.
+tables have not been added yet. The Memgraph infrastructure for the future
+graph model (Docker Compose stack and a Python connection module) is in place,
+but no graph model or data has been loaded.
 
 ## Problem
 
@@ -260,7 +262,9 @@ an unexplained AI insight.
 	marts; [lineage.json](docs/lineage.json) is the machine-readable version.
 - [Architecture decisions](docs/adr/): decisions about lakehouse layers,
 	validation, orchestration, synthetic signals, subscription modeling,
-	contracts, semantic metrics, and the chatbot.
+	contracts, semantic metrics, the chatbot, and the Memgraph graph backend.
+- [Graph backend](graph/README.md): optional Memgraph setup (Docker Compose,
+	Python connection module, smoke test).
 - [Project references](references.md): related open-source projects and tools.
 
 The data dictionary and lineage are design artifacts generated from contracts
