@@ -41,6 +41,10 @@ volume or `ALTER` the user in Cypher.
 stack. It skips (does not fail) when Memgraph is not reachable.
 `pytest` alone also runs the Docker-free unit tests.
 
+Every run writes a JUnit report to `docs/test-reports/junit.xml` (tracked in git,
+overwritten by the latest run). Commit it when you want to record a result; a run
+with `-m integration` only reports the integration tests.
+
 ## Notes
 
 - Bolt is bound to 127.0.0.1 only. Do not publish it wider without TLS.
