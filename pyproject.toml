@@ -11,13 +11,17 @@ dependencies = []
 
 [project.optional-dependencies]
 graph = ["neo4j>=6.3,<6.4"]
+funnels = ["duckdb>=1.1,<2"]
 dev = ["pytest>=8"]
 
 [tool.setuptools.packages.find]
-include = ["graph*"]
+include = ["graph*", "funnels*"]
+
+[tool.setuptools.package-data]
+funnels = ["sql/*.sql"]
 
 [tool.pytest.ini_options]
-testpaths = ["graph/tests"]
+testpaths = ["graph/tests", "funnels/tests"]
 addopts = "--junitxml=docs/test-reports/junit.xml"
 markers = [
     "integration: needs a running Memgraph (docker compose up -d)",
