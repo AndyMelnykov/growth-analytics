@@ -9,3 +9,6 @@ __pycache__/
 build/
 dist/
 .pytest_cache/
+
+# funnel analytics warehouse (python -m funnels --db ...)
+*.duckdb
