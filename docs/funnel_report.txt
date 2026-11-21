@@ -1,0 +1,316 @@
+## gold_acquisition_funnel
+level     acquisition_channel  acquisition_campaign  signups  observed_signups  activated  activation_rate  converted_in_window  conversion_rate  conversion_ci_low  conversion_ci_high  avg_days_to_convert  new_mrr  avg_new_mrr  enterprise_share  low_n
+--------  -------------------  --------------------  -------  ----------------  ---------  ---------------  -------------------  ---------------  -----------------  ------------------  -------------------  -------  -----------  ----------------  -----
+total     (all)                (all)                 5000     5000              2427       0.485            1345                 0.269            0.257              0.281               13.834               1634979  1215.598     0.327             False
+channel   content_marketing    (all)                 565      565               263        0.465            176                  0.312            0.275              0.351               13.750               175786   998.784      0.256             False
+channel   organic_search       (all)                 1192     1192              599        0.503            356                  0.299            0.273              0.325               13.553               416724   1170.573     0.329             False
+channel   outbound             (all)                 436      436               189        0.433            85                   0.195            0.160              0.235               13.588               89800    1056.471     0.329             False
+channel   paid_search          (all)                 971      971               472        0.486            239                  0.246            0.220              0.274               14.732               299065   1251.318     0.331             False
+channel   paid_social          (all)                 708      708               357        0.504            134                  0.189            0.162              0.220               13.090               188602   1407.478     0.328             False
+channel   partner              (all)                 393      393               190        0.483            102                  0.260            0.219              0.305               13.882               116771   1144.814     0.363             False
+channel   referral             (all)                 509      509               254        0.499            184                  0.361            0.321              0.404               14.054               261223   1419.690     0.370             False
+channel   unattributed         (all)                 226      226               103        0.456            69                   0.305            0.249              0.368               13.478               87008    1260.986     0.319             False
+campaign  content_marketing    ebook_plg             194      194               86         0.443            59                   0.304            0.244              0.372               14.627               51461    872.220      0.271             False
+campaign  content_marketing    newsletter            169      169               84         0.497            54                   0.320            0.254              0.393               13.074               46878    868.111      0.204             False
+campaign  content_marketing    webinar_series        202      202               93         0.460            63                   0.312            0.252              0.379               13.508               77447    1229.317     0.286             False
+campaign  organic_search       seo_blog              396      396               206        0.520            117                  0.295            0.253              0.342               14.128               168299   1438.453     0.350             False
+campaign  organic_search       seo_docs              395      395               194        0.491            124                  0.314            0.270              0.361               13.911               137988   1112.806     0.323             False
+campaign  organic_search       seo_landing           401      401               199        0.496            115                  0.287            0.245              0.333               12.583               110437   960.322      0.313             False
+campaign  outbound             sdr_sequence_q1       224      224               98         0.438            47                   0.210            0.162              0.268               12.638               42687    908.234      0.298             False
+campaign  outbound             sdr_sequence_q2       212      212               91         0.429            38                   0.179            0.133              0.236               14.763               47113    1239.816     0.368             False
+campaign  paid_search          google_brand          312      312               147        0.471            80                   0.256            0.211              0.308               14.162               99136    1239.200     0.312             False
+campaign  paid_search          google_competitor     327      327               163        0.498            76                   0.232            0.190              0.281               15.895               111964   1473.211     0.316             False
+campaign  paid_search          google_generic        332      332               162        0.488            83                   0.250            0.206              0.299               14.217               87965    1059.819     0.361             False
+campaign  paid_social          linkedin_cold         244      244               128        0.525            53                   0.217            0.170              0.273               13.189               60424    1140.075     0.302             False
+campaign  paid_social          linkedin_retargeting  241      241               121        0.502            41                   0.170            0.128              0.223               13.341               68269    1665.098     0.366             False
+campaign  paid_social          meta_lookalike        223      223               108        0.484            40                   0.179            0.135              0.235               12.700               59909    1497.725     0.325             False
+campaign  partner              integration_slack     184      184               92         0.500            51                   0.277            0.218              0.346               13.000               61270    1201.373     0.294             False
+campaign  partner              marketplace_aws       209      209               98         0.469            51                   0.244            0.191              0.307               14.765               55501    1088.255     0.431             False
+campaign  referral             affiliate             249      249               127        0.510            93                   0.373            0.316              0.435               13.925               136441   1467.108     0.387             False
+campaign  referral             user_invite           260      260               127        0.488            91                   0.350            0.295              0.410               14.187               124782   1371.231     0.352             False
+campaign  unattributed         unattributed          226      226               103        0.456            69                   0.305            0.249              0.368               13.478               87008    1260.986     0.319             False
+
+## gold_acquisition_cohorts
+signup_month  acquisition_channel  signups  observed_signups  converted_in_window  conversion_rate  conversion_ci_low  conversion_ci_high  low_n
+------------  -------------------  -------  ----------------  -------------------  ---------------  -----------------  ------------------  -----
+2024-01-01    content_marketing    53       53                14                   0.264            0.164              0.396               False
+2024-01-01    organic_search       106      106               25                   0.236            0.165              0.325               False
+2024-01-01    outbound             45       45                6                    0.133            0.063              0.262               False
+2024-01-01    paid_search          103      103               29                   0.282            0.204              0.375               False
+2024-01-01    paid_social          71       71                8                    0.113            0.058              0.207               False
+2024-01-01    partner              32       32                9                    0.281            0.156              0.454               False
+2024-01-01    referral             59       59                18                   0.305            0.203              0.431               False
+2024-01-01    unattributed         15       15                5                    0.333            0.152              0.583               True
+2024-02-01    content_marketing    50       50                13                   0.260            0.159              0.396               False
+2024-02-01    organic_search       91       91                28                   0.308            0.222              0.409               False
+2024-02-01    outbound             45       45                6                    0.133            0.063              0.262               False
+2024-02-01    paid_search          73       73                21                   0.288            0.197              0.400               False
+2024-02-01    paid_social          54       54                12                   0.222            0.132              0.349               False
+2024-02-01    partner              32       32                8                    0.250            0.133              0.421               False
+2024-02-01    referral             30       30                15                   0.500            0.332              0.668               False
+2024-02-01    unattributed         15       15                4                    0.267            0.109              0.520               True
+2024-03-01    content_marketing    57       57                22                   0.386            0.271              0.516               False
+2024-03-01    organic_search       125      125               38                   0.304            0.230              0.389               False
+2024-03-01    outbound             46       46                11                   0.239            0.139              0.379               False
+2024-03-01    paid_search          115      115               23                   0.200            0.137              0.282               False
+2024-03-01    paid_social          83       83                15                   0.181            0.113              0.277               False
+2024-03-01    partner              40       40                10                   0.250            0.142              0.402               False
+2024-03-01    referral             46       46                15                   0.326            0.209              0.470               False
+2024-03-01    unattributed         23       23                9                    0.391            0.222              0.592               True
+2024-04-01    content_marketing    61       61                19                   0.311            0.209              0.436               False
+2024-04-01    organic_search       140      140               38                   0.271            0.205              0.350               False
+2024-04-01    outbound             51       51                11                   0.216            0.125              0.346               False
+2024-04-01    paid_search          98       98                22                   0.224            0.153              0.317               False
+2024-04-01    paid_social          72       72                10                   0.139            0.077              0.237               False
+2024-04-01    partner              46       46                10                   0.217            0.123              0.356               False
+2024-04-01    referral             50       50                22                   0.440            0.312              0.577               False
+2024-04-01    unattributed         24       24                5                    0.208            0.092              0.405               True
+2024-05-01    content_marketing    82       82                27                   0.329            0.237              0.437               False
+2024-05-01    organic_search       169      169               54                   0.320            0.254              0.393               False
+2024-05-01    outbound             72       72                14                   0.194            0.120              0.300               False
+2024-05-01    paid_search          140      140               39                   0.279            0.211              0.358               False
+2024-05-01    paid_social          99       99                11                   0.111            0.063              0.188               False
+2024-05-01    partner              53       53                10                   0.189            0.106              0.314               False
+2024-05-01    referral             61       61                18                   0.295            0.196              0.419               False
+2024-05-01    unattributed         32       32                11                   0.344            0.204              0.517               False
+2024-06-01    content_marketing    48       48                15                   0.312            0.199              0.453               False
+2024-06-01    organic_search       124      124               45                   0.363            0.284              0.450               False
+2024-06-01    outbound             42       42                7                    0.167            0.083              0.306               False
+2024-06-01    paid_search          88       88                16                   0.182            0.115              0.275               False
+2024-06-01    paid_social          74       74                24                   0.324            0.229              0.437               False
+2024-06-01    partner              41       41                10                   0.244            0.138              0.393               False
+2024-06-01    referral             50       50                20                   0.400            0.276              0.538               False
+2024-06-01    unattributed         27       27                7                    0.259            0.132              0.447               True
+2024-07-01    content_marketing    88       88                28                   0.318            0.230              0.421               False
+2024-07-01    organic_search       169      169               47                   0.278            0.216              0.350               False
+2024-07-01    outbound             52       52                14                   0.269            0.168              0.403               False
+2024-07-01    paid_search          142      142               34                   0.239            0.177              0.316               False
+2024-07-01    paid_social          90       90                16                   0.178            0.112              0.269               False
+2024-07-01    partner              58       58                14                   0.241            0.150              0.365               False
+2024-07-01    referral             76       76                29                   0.382            0.281              0.494               False
+2024-07-01    unattributed         35       35                12                   0.343            0.208              0.508               False
+2024-08-01    content_marketing    79       79                26                   0.329            0.236              0.439               False
+2024-08-01    organic_search       164      164               52                   0.317            0.251              0.392               False
+2024-08-01    outbound             47       47                10                   0.213            0.120              0.349               False
+2024-08-01    paid_search          119      119               36                   0.303            0.227              0.390               False
+2024-08-01    paid_social          85       85                15                   0.176            0.110              0.271               False
+2024-08-01    partner              60       60                21                   0.350            0.242              0.476               False
+2024-08-01    referral             71       71                27                   0.380            0.276              0.497               False
+2024-08-01    unattributed         36       36                13                   0.361            0.225              0.524               False
+2024-09-01    content_marketing    47       47                12                   0.255            0.153              0.395               False
+2024-09-01    organic_search       104      104               29                   0.279            0.202              0.372               False
+2024-09-01    outbound             36       36                6                    0.167            0.079              0.319               False
+2024-09-01    paid_search          93       93                19                   0.204            0.135              0.297               False
+2024-09-01    paid_social          80       80                23                   0.287            0.200              0.395               False
+2024-09-01    partner              31       31                10                   0.323            0.186              0.499               False
+2024-09-01    referral             66       66                20                   0.303            0.206              0.422               False
+2024-09-01    unattributed         19       19                3                    0.158            0.055              0.376               True
+
+## gold_activation_funnel
+dimension            segment            signups  viewed  activated  shared  multi_feature  converted_in_window  activation_rate  activation_ci_low  activation_ci_high  multi_feature_rate_of_activated  conversion_rate  median_days_to_first_use  low_n
+-------------------  -----------------  -------  ------  ---------  ------  -------------  -------------------  ---------------  -----------------  ------------------  -------------------------------  ---------------  ------------------------  -----
+all                  all                5000     2261    2427       1103    534            1345                 0.485            0.472              0.499               0.220                            0.269            5.000                     False
+acquisition_channel  content_marketing  565      241     263        124     56             176                  0.465            0.425              0.507               0.213                            0.312            5.000                     False
+acquisition_channel  organic_search     1192     543     599        265     135            356                  0.503            0.474              0.531               0.225                            0.299            5.000                     False
+acquisition_channel  outbound           436      176     189        98      44             85                   0.433            0.388              0.480               0.233                            0.195            5.000                     False
+acquisition_channel  paid_search        971      454     472        217     94             239                  0.486            0.455              0.518               0.199                            0.246            4.000                     False
+acquisition_channel  paid_social        708      329     357        155     87             134                  0.504            0.467              0.541               0.244                            0.189            5.000                     False
+acquisition_channel  partner            393      184     190        84      43             102                  0.483            0.434              0.533               0.226                            0.260            5.000                     False
+acquisition_channel  referral           509      224     254        114     57             184                  0.499            0.456              0.542               0.224                            0.361            5.000                     False
+acquisition_channel  unattributed       226      110     103        46      18             69                   0.456            0.392              0.521               0.175                            0.305            6.000                     False
+company_size         1-10               1488     690     743        313     177            365                  0.499            0.474              0.525               0.238                            0.245            5.000                     False
+company_size         1000+              493      225     222        120     45             128                  0.450            0.407              0.494               0.203                            0.260            4.000                     False
+company_size         11-50              1245     526     622        270     136            338                  0.500            0.472              0.527               0.219                            0.271            5.000                     False
+company_size         201-1000           760      332     362        175     80             210                  0.476            0.441              0.512               0.221                            0.276            5.000                     False
+company_size         51-200             1014     488     478        225     96             304                  0.471            0.441              0.502               0.201                            0.300            4.000                     False
+industry             education          721      353     399        167     96             208                  0.553            0.517              0.589               0.241                            0.288            5.000                     False
+industry             finance            767      327     359        160     71             182                  0.468            0.433              0.503               0.198                            0.237            5.000                     False
+industry             healthcare         744      269     282        117     47             152                  0.379            0.345              0.414               0.167                            0.204            5.000                     False
+industry             manufacturing      483      148     154        72      27             95                   0.319            0.279              0.362               0.175                            0.197            5.000                     False
+industry             retail             819      390     398        184     86             231                  0.486            0.452              0.520               0.216                            0.282            5.000                     False
+industry             technology         1466     774     835        403     207            477                  0.570            0.544              0.595               0.248                            0.325            5.000                     False
+
+## gold_aha_features
+feature_name      cohort              users  converted  conversion_rate  conversion_ci_low  conversion_ci_high  low_n
+----------------  ------------------  -----  ---------  ---------------  -----------------  ------------------  -----
+advanced_export   available_not_used  2324   431        0.185            0.170              0.202               False
+advanced_export   not_available       1682   295        0.175            0.158              0.194               False
+advanced_export   used_feature        287    60         0.209            0.166              0.260               False
+ai_insights       available_not_used  2936   552        0.188            0.174              0.203               False
+ai_insights       not_available       749    133        0.178            0.152              0.207               False
+ai_insights       used_feature        608    101        0.166            0.139              0.198               False
+api_access        available_not_used  1483   282        0.190            0.171              0.211               False
+api_access        not_available       2710   483        0.178            0.164              0.193               False
+api_access        used_feature        100    21         0.210            0.142              0.300               False
+custom_workflows  not_available       4293   786        0.183            0.172              0.195               False
+real_time_collab  available_not_used  2969   532        0.179            0.166              0.193               False
+real_time_collab  not_available       121    15         0.124            0.077              0.194               False
+real_time_collab  used_feature        1203   239        0.199            0.177              0.222               False
+team_analytics    available_not_used  352    62         0.176            0.140              0.219               False
+team_analytics    not_available       3859   717        0.186            0.174              0.198               False
+team_analytics    used_feature        82     7          0.085            0.042              0.166               False
+
+## gold_aha_feature_lift
+feature_name      used_users  used_converted  used_rate  baseline_users  baseline_converted  baseline_rate  rate_diff  rate_diff_ci_low  rate_diff_ci_high  lift_ratio  ci_excludes_zero  low_n
+----------------  ----------  --------------  ---------  --------------  ------------------  -------------  ---------  ----------------  -----------------  ----------  ----------------  -----
+advanced_export   287         60              0.209      2324            431                 0.185          0.024      -0.026            0.073              1.127       False             False
+ai_insights       608         101             0.166      2936            552                 0.188          -0.022     -0.055            0.011              0.884       False             False
+api_access        100         21              0.210      1483            282                 0.190          0.020      -0.062            0.102              1.104       False             False
+real_time_collab  1203        239             0.199      2969            532                 0.179          0.019      -0.007            0.046              1.109       False             False
+team_analytics    82          7               0.085      352             62                  0.176          -0.091     -0.163            -0.018             0.485       True              False
+
+## gold_aha_behaviors
+behavior             level  level_order  users  converted  conversion_rate  conversion_ci_low  conversion_ci_high  low_n
+-------------------  -----  -----------  -----  ---------  ---------------  -----------------  ------------------  -----
+early_active_days    0      0            1628   244        0.150            0.133              0.168               False
+early_active_days    1      1            820    182        0.222            0.195              0.252               False
+early_active_days    2-3    2            1365   279        0.204            0.184              0.227               False
+early_active_days    4-6    3            467    78         0.167            0.136              0.204               False
+early_active_days    7+     4            13     3          0.231            0.082              0.503               True
+early_features_used  0      0            2390   416        0.174            0.159              0.190               False
+early_features_used  1      1            1546   315        0.204            0.184              0.225               False
+early_features_used  2      2            337    52         0.154            0.120              0.197               False
+early_features_used  3+     3            20     3          0.150            0.052              0.360               True
+early_shared         no     0            3436   613        0.178            0.166              0.192               False
+early_shared         yes    1            857    173        0.202            0.176              0.230               False
+
+## gold_habit_curve
+cohort            early_active_days_bucket  bucket_order  users  retained_users  retained_rate  retained_ci_low  retained_ci_high  low_n
+----------------  ------------------------  ------------  -----  --------------  -------------  ---------------  ----------------  -----
+all_users         0                         0             1678   158             0.094          0.081            0.109             False
+all_users         1                         1             940    496             0.528          0.496            0.559             False
+all_users         2-3                       2             1673   1185            0.708          0.686            0.730             False
+all_users         4-6                       3             683    594             0.870          0.842            0.893             False
+all_users         7+                        4             26     26              1.000          0.871            1.000             True
+free_at_landmark  0                         0             1628   141             0.087          0.074            0.101             False
+free_at_landmark  1                         1             820    419             0.511          0.477            0.545             False
+free_at_landmark  2-3                       2             1365   933             0.684          0.658            0.708             False
+free_at_landmark  4-6                       3             467    398             0.852          0.817            0.882             False
+free_at_landmark  7+                        4             13     13              1.000          0.772            1.000             True
+
+## gold_habit_threshold
+cohort            target_retention  threshold_bucket
+----------------  ----------------  ----------------
+all_users         0.800             4-6
+free_at_landmark  0.800             4-6
+
+## gold_usage_retention
+signup_month  week_n  cohort_users  active_users  retention_rate  retention_ci_low  retention_ci_high
+------------  ------  ------------  ------------  --------------  ----------------  -----------------
+2024-01-01    0       484           112           0.231           0.196             0.271
+2024-01-01    1       484           136           0.281           0.243             0.323
+2024-01-01    2       484           116           0.240           0.204             0.280
+2024-01-01    3       484           104           0.215           0.181             0.254
+2024-01-01    4       484           111           0.229           0.194             0.269
+2024-01-01    5       484           128           0.264           0.227             0.305
+2024-01-01    6       484           141           0.291           0.253             0.333
+2024-01-01    7       484           148           0.306           0.266             0.348
+2024-01-01    8       484           161           0.333           0.292             0.376
+2024-01-01    9       484           150           0.310           0.270             0.352
+2024-01-01    10      484           145           0.300           0.260             0.342
+2024-01-01    11      484           135           0.279           0.241             0.321
+2024-01-01    12      484           138           0.285           0.247             0.327
+2024-02-01    0       390           133           0.341           0.296             0.389
+2024-02-01    1       390           145           0.372           0.325             0.421
+2024-02-01    2       390           114           0.292           0.249             0.339
+2024-02-01    3       390           126           0.323           0.279             0.371
+2024-02-01    4       390           127           0.326           0.281             0.374
+2024-02-01    5       390           123           0.315           0.271             0.363
+2024-02-01    6       390           114           0.292           0.249             0.339
+2024-02-01    7       390           100           0.256           0.216             0.302
+2024-02-01    8       390           123           0.315           0.271             0.363
+2024-02-01    9       390           122           0.313           0.269             0.360
+2024-02-01    10      390           141           0.362           0.315             0.410
+2024-02-01    11      390           125           0.321           0.276             0.368
+2024-02-01    12      390           123           0.315           0.271             0.363
+2024-03-01    0       535           248           0.464           0.422             0.506
+2024-03-01    1       535           257           0.480           0.438             0.523
+2024-03-01    2       535           178           0.333           0.294             0.374
+2024-03-01    3       535           169           0.316           0.278             0.356
+2024-03-01    4       535           168           0.314           0.276             0.355
+2024-03-01    5       535           167           0.312           0.274             0.353
+2024-03-01    6       535           176           0.329           0.291             0.370
+2024-03-01    7       535           193           0.361           0.321             0.402
+2024-03-01    8       535           183           0.342           0.303             0.383
+2024-03-01    9       535           176           0.329           0.291             0.370
+2024-03-01    10      535           189           0.353           0.314             0.395
+2024-03-01    11      535           162           0.303           0.265             0.343
+2024-03-01    12      535           170           0.318           0.280             0.358
+2024-04-01    0       542           252           0.465           0.423             0.507
+2024-04-01    1       542           254           0.469           0.427             0.511
+2024-04-01    2       542           200           0.369           0.329             0.410
+2024-04-01    3       542           187           0.345           0.306             0.386
+2024-04-01    4       542           179           0.330           0.292             0.371
+2024-04-01    5       542           181           0.334           0.296             0.375
+2024-04-01    6       542           178           0.328           0.290             0.369
+2024-04-01    7       542           152           0.280           0.244             0.320
+2024-04-01    8       542           190           0.351           0.312             0.392
+2024-04-01    9       542           196           0.362           0.322             0.403
+2024-04-01    10      542           185           0.341           0.303             0.382
+2024-04-01    11      542           202           0.373           0.333             0.414
+2024-04-01    12      542           193           0.356           0.317             0.397
+2024-05-01    0       708           370           0.523           0.486             0.559
+2024-05-01    1       708           367           0.518           0.482             0.555
+2024-05-01    2       708           252           0.356           0.322             0.392
+2024-05-01    3       708           261           0.369           0.334             0.405
+2024-05-01    4       708           245           0.346           0.312             0.382
+2024-05-01    5       708           255           0.360           0.326             0.396
+2024-05-01    6       708           240           0.339           0.305             0.375
+2024-05-01    7       708           250           0.353           0.319             0.389
+2024-05-01    8       708           263           0.371           0.337             0.408
+2024-05-01    9       708           252           0.356           0.322             0.392
+2024-05-01    10      708           250           0.353           0.319             0.389
+2024-05-01    11      708           235           0.332           0.298             0.367
+2024-05-01    12      708           246           0.347           0.313             0.383
+2024-06-01    0       494           269           0.545           0.500             0.588
+2024-06-01    1       494           281           0.569           0.525             0.612
+2024-06-01    2       494           201           0.407           0.364             0.451
+2024-06-01    3       494           185           0.374           0.333             0.418
+2024-06-01    4       494           170           0.344           0.304             0.387
+2024-06-01    5       494           178           0.360           0.319             0.404
+2024-06-01    6       494           181           0.366           0.325             0.410
+2024-06-01    7       494           187           0.379           0.337             0.422
+2024-06-01    8       494           182           0.368           0.327             0.412
+2024-06-01    9       494           180           0.364           0.323             0.408
+2024-06-01    10      494           196           0.397           0.355             0.441
+2024-06-01    11      494           197           0.399           0.357             0.443
+2024-06-01    12      494           215           0.435           0.392             0.479
+2024-07-01    0       710           410           0.577           0.541             0.613
+2024-07-01    1       710           425           0.599           0.562             0.634
+2024-07-01    2       710           289           0.407           0.371             0.444
+2024-07-01    3       710           255           0.359           0.325             0.395
+2024-07-01    4       710           250           0.352           0.318             0.388
+2024-07-01    5       710           271           0.382           0.347             0.418
+2024-07-01    6       710           291           0.410           0.374             0.446
+2024-07-01    7       710           282           0.397           0.362             0.434
+2024-07-01    8       710           298           0.420           0.384             0.456
+2024-07-01    9       710           311           0.438           0.402             0.475
+2024-07-01    10      710           291           0.410           0.374             0.446
+2024-07-01    11      710           286           0.403           0.367             0.439
+2024-07-01    12      710           287           0.404           0.369             0.441
+2024-08-01    0       661           384           0.581           0.543             0.618
+2024-08-01    1       661           425           0.643           0.606             0.679
+2024-08-01    2       661           295           0.446           0.409             0.484
+2024-08-01    3       661           278           0.421           0.384             0.459
+2024-08-01    4       661           273           0.413           0.376             0.451
+2024-08-01    5       661           280           0.424           0.386             0.462
+2024-08-01    6       661           276           0.418           0.381             0.456
+2024-08-01    7       661           277           0.419           0.382             0.457
+2024-08-01    8       661           270           0.408           0.372             0.446
+2024-08-01    9       661           270           0.408           0.372             0.446
+2024-08-01    10      661           272           0.411           0.375             0.449
+2024-08-01    11      661           296           0.448           0.410             0.486
+2024-08-01    12      661           273           0.413           0.376             0.451
+2024-09-01    0       476           297           0.624           0.580             0.666
+2024-09-01    1       476           307           0.645           0.601             0.687
+2024-09-01    2       476           211           0.443           0.399             0.488
+2024-09-01    3       476           175           0.368           0.326             0.412
+2024-09-01    4       476           190           0.399           0.356             0.444
+2024-09-01    5       476           200           0.420           0.377             0.465
+2024-09-01    6       476           195           0.410           0.366             0.454
+2024-09-01    7       476           194           0.408           0.364             0.452
+2024-09-01    8       476           219           0.460           0.416             0.505
+2024-09-01    9       476           206           0.433           0.389             0.478
+2024-09-01    10      476           210           0.441           0.397             0.486
+2024-09-01    11      476           185           0.389           0.346             0.433
+2024-09-01    12      476           195           0.410           0.366             0.454

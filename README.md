@@ -23,6 +23,11 @@ tables have not been added yet. The Memgraph infrastructure for the future
 graph model (Docker Compose stack and a Python connection module) is in place,
 but no graph model or data has been loaded.
 
+Funnel analytics (acquisition, activation, aha moment, habit moment) run today
+on DuckDB straight from the raw files: `python -m funnels`. See
+[docs/funnel_metrics.md](docs/funnel_metrics.md) and
+[ADR 0009](docs/adr/0009-right-sized-funnel-analytics-on-duckdb.md).
+
 ## Problem
 
 Traditional analytics is effective when the question is already known:
@@ -265,6 +270,9 @@ an unexplained AI insight.
 	contracts, semantic metrics, the chatbot, and the Memgraph graph backend.
 - [Graph backend](graph/README.md): optional Memgraph setup (Docker Compose,
 	Python connection module, smoke test).
+- [Funnel metrics](docs/funnel_metrics.md): definitions, views and caveats for
+	the acquisition, activation, aha-moment and habit-moment analytics;
+	[funnel_report.txt](docs/funnel_report.txt) is the output on the committed data.
 - [Project references](references.md): related open-source projects and tools.
 
 The data dictionary and lineage are design artifacts generated from contracts
