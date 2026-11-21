@@ -31,7 +31,7 @@ Day index = days since the user's signup date (day 0 = signup date).
 | Landmark | the end of the early window. The aha cohort is users **still free at the landmark** whose next 30 days are observed |
 | Converted after landmark | `14 <= days_to_convert < 44` |
 | Retained | at least 2 distinct active days in day index 28..55 |
-| Habit moment | smallest early-active-days bucket whose retention 95% interval **lower bound** is at least 0.80 |
+| Habit moment | smallest early-active-days bucket (not `low_n`) whose retention 95% interval **lower bound** is at least 0.80 |
 
 ## Views
 

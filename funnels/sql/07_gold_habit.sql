@@ -31,13 +31,14 @@ from agg
 order by cohort, bucket_order;
 
 -- The habit moment candidate: the smallest early-activity bucket whose retention interval
--- lower bound reaches habit_target_retention. Using the lower bound keeps tiny buckets
--- from qualifying by luck.
+-- lower bound reaches habit_target_retention. Using the lower bound and skipping low_n
+-- buckets keeps tiny buckets from qualifying by luck.
 create or replace view gold_habit_threshold as
 select c.cohort,
        p.habit_target_retention as target_retention,
        arg_min(c.early_active_days_bucket, c.bucket_order)
-           filter (where c.retained_ci_low >= p.habit_target_retention) as threshold_bucket
+           filter (where c.retained_ci_low >= p.habit_target_retention and not c.low_n)
+           as threshold_bucket
 from gold_habit_curve c
 cross join params p
 group by c.cohort, p.habit_target_retention

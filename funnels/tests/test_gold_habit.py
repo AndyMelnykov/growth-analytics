@@ -86,3 +86,20 @@ def test_retention_rate_and_interval(query):
 
 def test_signup_months_are_dates(query):
     assert query("select min(signup_month) from gold_usage_retention") == [(date(2023, 12, 1),)]
+
+
+def test_threshold_never_picks_a_low_n_bucket(raw_dir):
+    # target 0.0 is cleared by every bucket; min_group_size=1000 makes every bucket low_n,
+    # so there is no trustworthy habit moment to report.
+    from dataclasses import replace
+
+    from funnels.tests.fixture_data import FIXTURE_PARAMS
+    from funnels.warehouse import build
+
+    con = build(raw_dir, replace(FIXTURE_PARAMS, habit_target_retention=0.0, min_group_size=1000))
+    try:
+        assert con.execute(
+            "select cohort, threshold_bucket from gold_habit_threshold order by cohort"
+        ).fetchall() == [("all_users", None), ("free_at_landmark", None)]
+    finally:
+        con.close()
