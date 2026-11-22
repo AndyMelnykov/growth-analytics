@@ -1,1 +1,1 @@
-"""Memgraph access for graph analysis. Requires the optional `graph` extra."""
+"""Graph analysis helpers built on igraph. Requires the optional `graph` extra."""
