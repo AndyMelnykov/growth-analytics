@@ -1,52 +1,76 @@
-# Graph (Memgraph)
+# Graph (igraph)
 
-Optional graph-analysis backend. See
-[ADR 0008](../docs/adr/0008-memgraph-graph-analysis.md). The rest of the
-repository does not need any of this.
+In-process graph analysis on top of the DuckDB warehouse. See
+[ADR 0010](../docs/adr/0010-igraph-replaces-memgraph.md) for why igraph. The
+rest of the repository does not need any of this.
 
-## Windows setup
+## Setup
 
-1. Install Docker Desktop; keep "Use WSL 2 based engine" enabled.
-2. Optional: cap WSL2 memory in `%UserProfile%\.wslconfig`, then run
-   `wsl --shutdown`:
+```bash
+pip install -e ".[graph,funnels,dev]"
+```
 
-   ```ini
-   [wsl2]
-   memory=8GB
-   ```
-3. Create your config: `cp .env.example .env`, then set a strong
-   `MEMGRAPH_PASSWORD` (letters, digits, `_ . -`). The image tags in
-   `.env.example` are already pinned; bump them deliberately.
-4. Install the Python extra: `pip install -e ".[graph,dev]"`.
+Windows needs nothing else: igraph installs from a prebuilt wheel.
 
-## Run
+## Usage
 
-| Task | Command |
-|---|---|
-| Start | `docker compose up -d` |
-| Start with Lab UI | `docker compose --profile ui up -d` then open http://127.0.0.1:3000 |
-| Status | `docker compose ps` |
-| Logs | `docker compose logs -f memgraph` |
-| Stop (keeps data) | `docker compose stop` |
-| Restart | `docker compose restart memgraph` |
-| Reset (DELETES all graph data) | `docker compose down -v` |
+`graph.build.build_graph` turns `(source, target, weight)` rows into an
+`igraph.Graph` with vertex attribute `name` and edge attribute `weight`:
 
-The admin user is created at first start of an empty volume. Changing
-`MEMGRAPH_USER` or `MEMGRAPH_PASSWORD` afterwards does not change it; reset the
-volume or `ALTER` the user in Cypher.
+```python
+import duckdb
 
-## Test
+from graph.build import build_graph
 
-`pytest -m integration graph/tests` runs the smoke test against the running
-stack. It skips (does not fail) when Memgraph is not reachable.
-`pytest` alone also runs the Docker-free unit tests.
+rows = duckdb.connect().execute(
+    "select * from (values ('a','b',3),('b','c',1),('c','a',1)) t(src, dst, n)"
+).fetchall()
 
-Every run writes a JUnit report to `docs/test-reports/junit.xml` (tracked in git,
-overwritten by the latest run). Commit it when you want to record a result; a run
-with `-m integration` only reports the integration tests.
+g = build_graph(rows)
+print(g.vs["name"])                      # ['a', 'b', 'c']
+print(g.pagerank(weights="weight"))      # one score per vertex
+```
+
+In real use, replace the `values` query with a query against the `funnels`
+warehouse that returns the same three columns.
+
+## Tests
+
+```bash
+pytest graph/tests
+```
+
+Every `pytest` run writes a JUnit report to `docs/test-reports/junit.xml`
+(tracked in git, overwritten by the latest run). Commit it when you want to
+record a result.
 
 ## Notes
 
-- Bolt is bound to 127.0.0.1 only. Do not publish it wider without TLS.
-- The graph is rebuildable from `data/raw/`; snapshots live in the
-  `memgraph_data` volume and are not an off-host backup.
+- The graph is in memory and rebuilt on demand; nothing is persisted.
+- `build_graph` creates vertices in first-seen order, sums the weights of
+  duplicate edges (for `directed=False`, `(a, b)` and `(b, a)` are the same
+  edge) and keeps self-loops.
+- Missing endpoints and NULL, NaN, infinite or negative weights raise
+  `GraphInputError`. `int` and `Decimal` weights, as DuckDB returns them, are
+  stored as float.
+- igraph is imported when `build_graph` is called, so `import graph.build`
+  works without the extra; calling it without igraph raises an `ImportError`
+  that names the install command.
+
+## Migrating from Memgraph
+
+Earlier checkouts shipped a Memgraph Docker Compose stack. If you ran it,
+remove its resources from a checkout that still has `docker-compose.yml`:
+
+```bash
+docker compose --profile ui down -v --rmi all --remove-orphans
+```
+
+If the compose file is already gone, remove the leftovers directly:
+
+```bash
+docker volume rm growth-analytics_memgraph_data
+docker rmi memgraph/memgraph-mage:3.13.1 memgraph/lab:3.13.2
+```
+
+You can also delete your local `.env` (it held `MEMGRAPH_*` settings).

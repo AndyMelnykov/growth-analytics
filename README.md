@@ -19,9 +19,9 @@ The repository currently contains a synthetic raw-data snapshot and the design
 documentation for the planned platform. The data and documentation support the
 source model and target analytical outputs, but the executable transformation
 pipeline, graph model, chatbot, and materialized Bronze, Silver, and Gold
-tables have not been added yet. The Memgraph infrastructure for the future
-graph model (Docker Compose stack and a Python connection module) is in place,
-but no graph model or data has been loaded.
+tables have not been added yet. The graph model and chatbot have not been
+added yet either; igraph, with a tested `graph.build.build_graph` helper, is in
+place for the future graph model.
 
 Funnel analytics (acquisition, activation, aha moment, habit moment) run today
 on DuckDB straight from the raw files: `python -m funnels`. See
@@ -267,9 +267,8 @@ an unexplained AI insight.
 	marts; [lineage.json](docs/lineage.json) is the machine-readable version.
 - [Architecture decisions](docs/adr/): decisions about lakehouse layers,
 	validation, orchestration, synthetic signals, subscription modeling,
-	contracts, semantic metrics, the chatbot, and the Memgraph graph backend.
-- [Graph backend](graph/README.md): optional Memgraph setup (Docker Compose,
-	Python connection module, smoke test).
+	contracts, semantic metrics, the chatbot, and the graph tooling.
+- [Graph helpers](graph/README.md): igraph setup and the row-to-graph builder.
 - [Funnel metrics](docs/funnel_metrics.md): definitions, views and caveats for
 	the acquisition, activation, aha-moment and habit-moment analytics;
 	[funnel_report.txt](docs/funnel_report.txt) is the output on the committed data.

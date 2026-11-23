@@ -1,5 +1,7 @@
 # Memgraph as a dependency: design
 
+> Superseded by [ADR 0010](../../adr/0010-igraph-replaces-memgraph.md); kept as history.
+
 Date: 2026-10-03
 Status: Approved; implemented by plan 2026-10-04
 

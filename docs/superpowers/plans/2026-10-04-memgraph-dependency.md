@@ -1,5 +1,7 @@
 # Memgraph Dependency Implementation Plan
 
+> Superseded by [ADR 0010](../../adr/0010-igraph-replaces-memgraph.md); kept as history.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Add a pinned, authenticated, persistent single-node Memgraph (with MAGE) to the repo as an optional dependency, with a small Python connection module, tests, and docs. No graph model.

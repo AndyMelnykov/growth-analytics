@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Superseded by [ADR 0010](0010-igraph-replaces-memgraph.md).
 
 ## Context
 
