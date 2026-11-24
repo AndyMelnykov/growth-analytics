@@ -19,6 +19,7 @@ include = ["graph*", "funnels*"]
 
 [tool.setuptools.package-data]
 funnels = ["sql/*.sql"]
+graph = ["report/*.html"]
 
 [tool.pytest.ini_options]
 testpaths = ["graph/tests", "funnels/tests"]

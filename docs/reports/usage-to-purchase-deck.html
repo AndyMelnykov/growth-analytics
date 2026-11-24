@@ -1,0 +1,676 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What moves free users to buy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Deck: fixed 1280x720 stage scaled to the window; one slide visible; print = one slide per page. */
+:root {
+  --bg: #f5f6f7; --surface: #ffffff; --ink: #14171b; --ink-2: #4b5159; --muted: #80868e;
+  --line: #e1e4e8; --axis: #c3c8cf; --wash: #eef1f4; --night: #14181d; --night-2: #a9b1ba;
+  --pos: #2a78d6; --neg: #e34948; --unsure: #9ba1a9; --accent: #19607a;
+  --font-display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Inter", "Segoe UI", system-ui, sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: #0b0d10; overflow: hidden; }
+body { font-family: var(--font-body); color: var(--ink); font-size: 18px; line-height: 1.5; }
+.stage { position: absolute; left: 50%; top: 50%; width: 1280px; height: 720px; transform-origin: center center; }
+.slide { position: absolute; inset: 0; background: var(--bg); padding: 44px 64px 40px; display: none; flex-direction: column; gap: 22px; overflow: hidden; }
+.slide.on { display: flex; }
+.slide.dark { background: var(--night); color: #f2f4f6; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 600; line-height: 1.12; margin: 0; text-wrap: balance; }
+h1 { font-size: 64px; letter-spacing: -0.015em; }
+h2 { font-size: 34px; letter-spacing: -0.01em; max-width: 30ch; }
+h3 { font-size: 18px; }
+p { margin: 0; }
+.top { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; }
+.top > div { display: grid; gap: 10px; min-width: 0; }
+.eyebrow { font-size: 13px; text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted); font-weight: 500; }
+.dark .eyebrow { color: var(--night-2); }
+.body { flex: 1; min-height: 0; display: flex; gap: 40px; }
+.body > * { min-width: 0; }
+.foot { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
+.dark .foot { color: var(--night-2); }
+.pg { visibility: hidden; }
+.note { font-size: 16px; color: var(--ink-2); }
+.small { font-size: 14px; color: var(--ink-2); }
+.mono, .num { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+code { font-family: var(--font-data); font-size: 0.88em; background: var(--wash); padding: 1px 6px; border-radius: 4px; }
+.up { color: var(--pos); } .down { color: var(--neg); }
+
+/* title slide */
+.title-body { flex: 1; display: grid; align-content: center; gap: 26px; }
+.title-body .sub { font-size: 22px; color: var(--night-2); max-width: 46ch; }
+.facts { display: flex; gap: 56px; padding-top: 26px; border-top: 1px solid #2c333b; }
+.fact { display: grid; gap: 4px; }
+.fact b { font-family: var(--font-data); font-weight: 500; font-size: 30px; }
+.fact span { font-size: 14px; color: var(--night-2); }
+
+/* big number + text */
+.big { font-family: var(--font-data); font-size: 120px; line-height: 1; font-weight: 500; color: var(--ink); letter-spacing: -0.03em; }
+.stack { display: grid; gap: 16px; align-content: start; }
+
+/* lists of findings */
+.finds { display: grid; gap: 0; align-content: start; }
+.find { display: grid; grid-template-columns: 1fr auto; gap: 2px 20px; padding: 12px 0; border-top: 1px solid var(--line); }
+.find .what { font-weight: 600; font-size: 18px; }
+.find .ratio { font-family: var(--font-data); font-size: 20px; font-weight: 500; text-align: right; white-space: nowrap; }
+.find .why { grid-column: 1 / -1; font-size: 15px; color: var(--ink-2); }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; display: flex; flex-direction: column; gap: 12px; min-height: 0; }
+.viz { flex: 1; min-height: 0; display: flex; }
+.viz svg { width: 100%; height: 100%; display: block; font-family: var(--font-body); }
+svg text { fill: var(--ink); }
+svg .t2 { fill: var(--ink-2); } svg .tm { fill: var(--muted); }
+#journey text { paint-order: stroke; stroke: var(--surface); stroke-width: 5px; stroke-linejoin: round; }
+
+.controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; }
+.seg { display: inline-flex; border: 1px solid var(--axis); border-radius: 8px; overflow: hidden; background: var(--surface); }
+.seg button { font: inherit; font-size: 13px; padding: 6px 12px; border: 0; background: transparent; color: var(--ink-2); cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--axis); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
+.chk { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-2); cursor: pointer; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 7px; }
+button:focus-visible, input:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.edge { fill: none; transition: opacity 120ms; }
+.dim .edge:not(.hot) { opacity: 0.06 !important; }
+.dim .node:not(.hot) { opacity: 0.35; }
+
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { font-weight: 600; color: var(--ink-2); font-size: 12.5px; white-space: normal; vertical-align: bottom; }
+td.n, th.n { text-align: right; font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+tr.flag td { background: #fff4f3; }
+
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 18px; counter-reset: s; max-width: 980px; }
+.steps li { display: grid; grid-template-columns: 44px 1fr; gap: 4px 12px; font-size: 18px; color: var(--ink-2); }
+.steps li::before { counter-increment: s; content: counter(s); font-family: var(--font-data); font-size: 22px; color: var(--accent); font-weight: 500; }
+.steps b { color: var(--ink); }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 26px 48px; align-content: start; }
+.grid2 > div { display: grid; gap: 6px; font-size: 15px; color: var(--ink-2); align-content: start; }
+
+#tip { position: fixed; z-index: 30; pointer-events: none; background: var(--surface); color: var(--ink); border: 1px solid var(--axis);
+  border-radius: 8px; padding: 10px 12px; font-size: 13px; line-height: 1.45; box-shadow: 0 6px 24px rgba(0,0,0,0.18); max-width: 320px; font-family: var(--font-body); }
+#tip .v { font-family: var(--font-data); font-weight: 500; font-size: 15px; }
+#tip .k { color: var(--ink-2); }
+#tip .row { display: flex; gap: 8px; align-items: baseline; }
+#tip .key { width: 12px; height: 3px; border-radius: 2px; flex: none; transform: translateY(-3px); }
+[hidden] { display: none !important; }
+
+.nav { position: fixed; right: 16px; bottom: 14px; z-index: 20; display: flex; align-items: center; gap: 8px; font: 13px var(--font-data); color: #c9cfd6; }
+.nav button { font: inherit; width: 32px; height: 32px; border-radius: 6px; border: 1px solid #39414a; background: #1a1f25; color: #e8ebee; cursor: pointer; }
+.bar { position: fixed; left: 0; bottom: 0; height: 3px; background: var(--accent); z-index: 20; transition: width 200ms; }
+@media (prefers-reduced-motion: reduce) { .edge, .bar { transition: none; } }
+@media print {
+  @page { size: 1280px 720px; margin: 0; }
+  html, body { height: auto; overflow: visible; background: none; }
+  .stage { position: static; transform: none !important; width: 1280px; height: auto; }
+  .slide { position: relative; display: flex !important; width: 1280px; height: 720px; break-after: page; }
+  .nav, .bar, #tip { display: none !important; }
+  .pg { visibility: visible; }
+}
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+
+<!-- 1 -->
+<section class="slide dark" data-title="Title">
+  <div class="eyebrow">Growth analytics · 2024 synthetic snapshot</div>
+  <div class="title-body">
+    <h1>What moves free users to buy</h1>
+    <p class="sub">A time-aware graph analysis of feature usage, conversions and subscription events. Only what users did before paying counts.</p>
+    <div class="facts" id="facts"></div>
+  </div>
+  <div class="foot"><span>Source: data/raw · DuckDB + igraph</span><span>Use ← → to move between slides</span></div>
+</section>
+
+<!-- 2 -->
+<section class="slide" data-title="Timing trap">
+  <div class="top"><div><div class="eyebrow">Why the method matters</div>
+    <h2>Most of what buyers do in the product happens after they pay</h2></div></div>
+  <div class="body">
+    <div class="stack" style="flex:0 0 330px">
+      <div class="big" id="after-pct"></div>
+      <p class="note">of buyers' usage events come after the purchase date. Median time to buy is 14 days, but median usage is on day 54 after signup.</p>
+      <p class="note">Count every event and each feature looks like a reason to buy. Count only usage while free, and the late launches drop out.</p>
+    </div>
+    <div class="panel" style="flex:1"><table id="ntable"></table>
+      <p class="small">"While free" = users who touched the feature before buying, or at any time if they never bought. The last column is the adjusted rate ratio used in the rest of this deck.</p></div>
+  </div>
+  <div class="foot"><span>Overall purchase rate: 30.5% of 5,000 signups</span><span class="pg"></span></div>
+</section>
+
+<!-- 3 -->
+<section class="slide" data-title="Raises buying">
+  <div class="top"><div><div class="eyebrow">Before purchase · what helps</div>
+    <h2>Real-time collaboration is the biggest lever. Early hands-on use helps too.</h2></div></div>
+  <div class="body">
+    <div class="finds" style="flex:0 0 470px">
+      <div class="find"><span class="what">Trying real_time_collab</span><span class="ratio up">1.98×</span><span class="why">2.14× for Enterprise and 1.89× for Pro. 62% of conversions in the journey graph pass through it.</span></div>
+      <div class="find"><span class="what">Hands-on use, not just views</span><span class="ratio up">1.62×</span><span class="why">The first <em>use</em> event of any feature. Viewing alone makes no difference.</span></div>
+      <div class="find"><span class="what">Trying ai_insights</span><span class="ratio up">1.37×</span><span class="why">A Pro signal: 1.55× for Pro, no clear effect on Enterprise.</span></div>
+      <div class="find"><span class="what">Back on 3+ separate days</span><span class="ratio up">1.30×</span><span class="why">A few return visits help.</span></div>
+      <div class="find"><span class="what">Sharing from any feature</span><span class="ratio up">1.26×</span><span class="why">1.35× for Pro.</span></div>
+    </div>
+    <div class="panel" style="flex:1"><div class="eyebrow">Any purchase · rate ratio, 95% interval</div><div class="viz"><svg id="mini-pos" role="img" aria-label="Rate ratios above 1 for the positive behaviours"></svg></div></div>
+  </div>
+  <div class="foot"><span>Rate ratio = purchases per free day after the behaviour vs. similar users on the same day since signup who have not done it yet</span><span class="pg"></span></div>
+</section>
+
+<!-- 4 -->
+<section class="slide" data-title="Lowers buying">
+  <div class="top"><div><div class="eyebrow">Before purchase · what hurts</div>
+    <h2>Users who never start, or settle into free use, rarely buy</h2></div></div>
+  <div class="body">
+    <div class="finds" style="flex:0 0 470px">
+      <div class="find"><span class="what">No activity yet</span><span class="ratio down">0.43×</span><span class="why">The largest group: 1,628 of the 4,293 users still free on day 14 had done nothing.</span></div>
+      <div class="find"><span class="what">Active on 7+ days</span><span class="ratio down">0.32×</span><span class="why">Buyers decide early. Free users who keep coming back for weeks seldom upgrade.</span></div>
+      <div class="find"><span class="what">10+ events</span><span class="ratio down">0.19×</span><span class="why">Only 4 purchases followed a user's 10th free event.</span></div>
+      <p class="small" style="padding-top:12px;border-top:1px solid var(--line)"><b>No clear effect:</b> api_access, team_analytics, 2+ or 3+ features, and 14+ days inactive. custom_workflows launched a day before the last purchase, so there is no pre-purchase data.</p>
+    </div>
+    <div class="panel" style="flex:1"><div class="eyebrow">Cross-check · users still free on day 14</div>
+      <p class="small">Share who bought in days 14–95, by events in their first two weeks. Light activity is best.</p>
+      <div class="viz"><svg id="landmark" role="img" aria-label="Purchase rate by early events: 0 events 16.8%, 1-2 events 21.9%, 3-5 events 18.8%, 6+ events 16.9%"></svg></div></div>
+  </div>
+  <div class="foot"><span>Activity level: none 0.43× · 3+ days 1.30× · 7+ days 0.32×</span><span class="pg"></span></div>
+</section>
+
+<!-- 5 -->
+<section class="slide" data-title="Dependency graph">
+  <div class="top"><div><div class="eyebrow">The graph</div>
+    <h2>How each free-period behaviour links to each outcome</h2></div>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="Which outcomes to show">
+        <button type="button" id="g-both" aria-pressed="true">All</button>
+        <button type="button" id="g-pre" aria-pressed="false">Purchase</button>
+        <button type="button" id="g-post" aria-pressed="false">After purchase</button>
+      </div>
+      <label class="chk"><input type="checkbox" id="g-unsure"> Uncertain links</label>
+    </div></div>
+  <div class="panel" style="flex:1">
+    <div class="legend">
+      <span><svg width="28" height="8" aria-hidden="true"><line x1="0" y1="4" x2="28" y2="4" style="stroke:var(--pos)" stroke-width="4"/></svg>Raises</span>
+      <span><svg width="28" height="8" aria-hidden="true"><line x1="0" y1="4" x2="28" y2="4" style="stroke:var(--neg)" stroke-width="4"/></svg>Lowers</span>
+      <span><svg width="28" height="8" aria-hidden="true"><line x1="0" y1="4" x2="28" y2="4" style="stroke:var(--ink-2)" stroke-width="3"/></svg>Solid: passes the strict test</span>
+      <span><svg width="28" height="8" aria-hidden="true"><line x1="0" y1="4" x2="28" y2="4" style="stroke:var(--ink-2)" stroke-width="3" stroke-dasharray="6 4"/></svg>Dashed: 95% interval only</span>
+      <span><svg width="28" height="8" aria-hidden="true"><line x1="0" y1="4" x2="28" y2="4" style="stroke:var(--unsure)" stroke-width="1.5" stroke-dasharray="2 3"/></svg>Dotted: uncertain</span>
+      <span>Thickness = size of effect · hover for numbers</span>
+    </div>
+    <div class="viz"><svg id="graph" role="img" aria-label="Dependency graph linking free-period behaviours to purchase and after-purchase outcomes"></svg></div>
+  </div>
+</section>
+
+<!-- 6 -->
+<section class="slide" data-title="Rate ratios">
+  <div class="top"><div><div class="eyebrow">All results</div>
+    <h2>Rate ratios by outcome</h2></div>
+    <div class="controls"><div class="seg" role="group" aria-label="Outcome" id="f-seg"></div></div></div>
+  <div class="panel" style="flex:1">
+    <div class="legend">
+      <span><svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="5" style="fill:var(--ink-2)"/></svg>Filled: passes the strict test</span>
+      <span><svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="4.2" style="fill:var(--surface);stroke:var(--ink-2)" stroke-width="1.6"/></svg>Ring: 95% interval only</span>
+      <span><svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="4" style="fill:var(--unsure)"/></svg>Gray: interval includes 1.00×</span>
+      <span>Log scale</span>
+    </div>
+    <div class="viz"><svg id="forest" role="img" aria-label="Rate ratio for each behaviour with 95% interval for the selected outcome"></svg></div>
+  </div>
+</section>
+
+<!-- 7 -->
+<section class="slide" data-title="Journey graph">
+  <div class="top"><div><div class="eyebrow">The journey as a Markov chain (igraph)</div>
+    <h2>Most buying journeys pass through real_time_collab</h2></div></div>
+  <div class="body">
+    <div class="panel" style="flex:1"><div class="viz"><svg id="journey" role="img" aria-label="Journey graph from Signup through features to Converted or Not converted"></svg></div>
+      <p class="small">Node size = users who reached the feature while free. Curves on the right = next feature (10%+ of moves). Hover over a node for all its steps.</p></div>
+    <div class="stack" style="flex:0 0 400px">
+      <table id="jtable"></table>
+      <p class="small"><b>Removal effect</b> = share of purchases lost if the feature is cut from every journey. It favours popular features, so read it together with the rate ratios. <b>P(buy)</b> = chance of eventually buying from that point. The baseline is 30.5%.</p>
+    </div>
+  </div>
+  <div class="foot"><span>Signup → features → Converted | Not converted · 5,000 journeys, 55 weighted edges</span><span class="pg"></span></div>
+</section>
+
+<!-- 8 -->
+<section class="slide" data-title="After purchase">
+  <div class="top"><div><div class="eyebrow">After purchase · leads, not proof</div>
+    <h2>Customers who adopt more features cancel less, and API users expand</h2></div></div>
+  <div class="body">
+    <div class="finds" style="flex:0 0 470px">
+      <div class="find"><span class="what">Feature adoption → cancellation</span><span class="ratio down">0.59–0.77×</span><span class="why">real_time_collab, advanced_export, api_access and 2+ features all go with fewer cancellations.</span></div>
+      <div class="find"><span class="what">api_access → expansion</span><span class="ratio up">1.39×</span><span class="why">More seat expansions and plan upgrades.</span></div>
+      <div class="find"><span class="what">Sharing real_time_collab → contraction</span><span class="ratio up">1.37×</span><span class="why">Probably noise. Check against the next snapshot.</span></div>
+      <p class="small" style="padding-top:12px;border-top:1px solid var(--line)">None of these passes the strict test for ~30 behaviours. The consistent direction for cancellation matches how the data was generated (ADR 0004: each adopted feature lowers churn).</p>
+    </div>
+    <div class="panel" style="flex:1"><div class="eyebrow">Cancellation · rate ratio, 95% interval</div><div class="viz"><svg id="mini-cancel" role="img" aria-label="Rate ratios below 1 for cancellation after feature adoption"></svg></div></div>
+  </div>
+  <div class="foot"><span>Compared within days-since-purchase band × plan</span><span class="pg"></span></div>
+</section>
+
+<!-- 9 -->
+<section class="slide" data-title="What to do">
+  <div class="top"><div><div class="eyebrow">Recommendations</div><h2>What to do with this</h2></div></div>
+  <ol class="steps">
+    <li><span><b>Put real_time_collab in the first session.</b> Prompt a co-edit or a teammate invite on day one. It is the biggest lever for both plans.</span></li>
+    <li><span><b>Aim activation at the first week.</b> Inactive users are the largest group. One or two hands-on actions lift day-14 conversion from 16.8% to 21.9%.</span></li>
+    <li><span><b>Ask for the purchase while interest is high.</b> A user on their 7th active free day who has not bought is settling in. That is when to show a plan prompt, introduce paid limits or have sales reach out.</span></li>
+    <li><span><b>Lead Pro messaging with ai_insights,</b> and Enterprise messaging with real_time_collab.</span></li>
+    <li><span><b>After the purchase, push a second feature and the API.</b> Fewer cancellations and more expansion. Test before treating these as effects.</span></li>
+  </ol>
+  <div class="foot" style="margin-top:auto"><span></span><span class="pg"></span></div>
+</section>
+
+<!-- 10 -->
+<section class="slide" data-title="Method">
+  <div class="top"><div><div class="eyebrow">Method and limits</div><h2>How the numbers were made</h2></div></div>
+  <div class="grid2">
+    <div><h3>Data</h3><p>feature_usage_events (48,666), conversions (1,526), subscription_events (2,651), plus signup and release dates for timing. Calendar year 2024.</p></div>
+    <div><h3>Time-aware comparison</h3><p>Free days run from signup to purchase, up to 95 days. A behaviour counts from the day after it first happens. Rates are compared within days-since-signup band × signup month and pooled as a Mantel–Haenszel rate ratio with a 95% interval. A feature is only compared on days after its release.</p></div>
+    <div><h3>Strict test</h3><p>About 30 behaviours are tested per outcome. "Strict" means the interval still excludes 1.00× at z = 3.14 (Bonferroni for 30 tests).</p></div>
+    <div><h3>Journey graph</h3><p>Event sequences are built into a weighted directed graph with <code>graph.build.build_graph</code> and solved as an absorbing Markov chain. The removal effect is the drop in P(buy) from Signup when a feature node is cut.</p></div>
+    <div><h3>Limits</h3><p>The data is synthetic with engineered signals, so absolute rates are invented. These are associations, not proof of cause. The link between long free use and not buying may partly reflect how the generator spreads events.</p></div>
+    <div><h3>Reproduce</h3><p><code>python -m graph.usage_conversion --deck docs/reports/usage-to-purchase-deck.html</code> rebuilds this deck from <code>data/raw</code> in about 2 seconds.</p></div>
+  </div>
+  <div class="foot" style="margin-top:auto"><span></span><span class="pg"></span></div>
+</section>
+
+</div>
+<div class="nav" aria-label="Slide navigation"><button type="button" id="prev" aria-label="Previous slide">←</button><span id="count"></span><button type="button" id="next" aria-label="Next slide">→</button></div>
+<div class="bar" id="bar"></div>
+<div id="tip" hidden></div>
+
+<script>
+const DATA = {"summary":{"users":5000,"converted":1526,"pro":989,"enterprise":537,"events":48666,"converter_events_after_purchase":15861,"converter_events":18872},"lifecycle":{"plan_upgraded":79,"subscription_started":1526,"seats_contracted":160,"seats_expanded":475,"plan_downgraded":27,"subscription_cancelled":253},"labels":{"use_any":"Used any feature","share_any":"Shared from any feature","breadth_2":"Used 2+ features","breadth_3":"Used 3+ features","active_3d":"Active on 3+ days","active_7d":"Active on 7+ days","events_10":"10+ events","never_active":"No activity yet","view_only":"Viewed but never used","dormant_14":"Inactive 14+ days","use:real_time_collab":"Used real_time_collab","use:ai_insights":"Used ai_insights","use:advanced_export":"Used advanced_export","use:api_access":"Used api_access","use:team_analytics":"Used team_analytics","use:custom_workflows":"Used custom_workflows","view:real_time_collab":"Viewed real_time_collab","view:ai_insights":"Viewed ai_insights","view:advanced_export":"Viewed advanced_export","view:api_access":"Viewed api_access","view:team_analytics":"Viewed team_analytics","view:custom_workflows":"Viewed custom_workflows","share:real_time_collab":"Shared real_time_collab","share:ai_insights":"Shared ai_insights","share:advanced_export":"Shared advanced_export","share:api_access":"Shared api_access","share:team_analytics":"Shared team_analytics","share:custom_workflows":"Shared custom_workflows","any:real_time_collab":"Touched real_time_collab","any:ai_insights":"Touched ai_insights","any:advanced_export":"Touched advanced_export","any:api_access":"Touched api_access","any:team_analytics":"Touched team_analytics","any:custom_workflows":"Touched custom_workflows"},"rows":[{"b":"active_3d","o":"converted","rr":1.297,"lo":1.161,"hi":1.449,"sig":true,"rob":true,"ee":455,"ue":1071,"n":2714},{"b":"active_3d","o":"converted_enterprise","rr":1.279,"lo":1.068,"hi":1.533,"sig":true,"rob":false,"ee":182,"ue":355,"n":2714},{"b":"active_3d","o":"converted_pro","rr":1.309,"lo":1.138,"hi":1.505,"sig":true,"rob":true,"ee":273,"ue":716,"n":2714},{"b":"active_7d","o":"converted","rr":0.322,"lo":0.205,"hi":0.505,"sig":true,"rob":true,"ee":18,"ue":1508,"n":1623},{"b":"active_7d","o":"converted_enterprise","rr":0.323,"lo":0.173,"hi":0.605,"sig":true,"rob":true,"ee":9,"ue":528,"n":1623},{"b":"active_7d","o":"converted_pro","rr":0.321,"lo":0.168,"hi":0.612,"sig":true,"rob":true,"ee":9,"ue":980,"n":1623},{"b":"any:advanced_export","o":"converted","rr":1.272,"lo":1.091,"hi":1.483,"sig":true,"rob":false,"ee":202,"ue":838,"n":808},{"b":"any:advanced_export","o":"converted_enterprise","rr":1.225,"lo":0.952,"hi":1.576,"sig":false,"rob":false,"ee":76,"ue":302,"n":808},{"b":"any:advanced_export","o":"converted_pro","rr":1.302,"lo":1.073,"hi":1.579,"sig":true,"rob":false,"ee":126,"ue":536,"n":808},{"b":"any:ai_insights","o":"converted","rr":1.368,"lo":1.221,"hi":1.533,"sig":true,"rob":true,"ee":404,"ue":948,"n":1444},{"b":"any:ai_insights","o":"converted_enterprise","rr":1.086,"lo":0.892,"hi":1.322,"sig":false,"rob":false,"ee":129,"ue":356,"n":1444},{"b":"any:ai_insights","o":"converted_pro","rr":1.553,"lo":1.351,"hi":1.786,"sig":true,"rob":true,"ee":275,"ue":592,"n":1444},{"b":"any:api_access","o":"converted","rr":1.056,"lo":0.818,"hi":1.362,"sig":false,"rob":false,"ee":66,"ue":613,"n":357},{"b":"any:api_access","o":"converted_enterprise","rr":1.304,"lo":0.883,"hi":1.924,"sig":false,"rob":false,"ee":29,"ue":203,"n":357},{"b":"any:api_access","o":"converted_pro","rr":0.919,"lo":0.655,"hi":1.289,"sig":false,"rob":false,"ee":37,"ue":410,"n":357},{"b":"any:real_time_collab","o":"converted","rr":1.976,"lo":1.788,"hi":2.183,"sig":true,"rob":true,"ee":804,"ue":711,"n":2244},{"b":"any:real_time_collab","o":"converted_enterprise","rr":2.137,"lo":1.802,"hi":2.533,"sig":true,"rob":true,"ee":301,"ue":232,"n":2244},{"b":"any:real_time_collab","o":"converted_pro","rr":1.893,"lo":1.674,"hi":2.141,"sig":true,"rob":true,"ee":503,"ue":479,"n":2244},{"b":"any:team_analytics","o":"converted","rr":0.917,"lo":0.665,"hi":1.263,"sig":false,"rob":false,"ee":44,"ue":221,"n":379},{"b":"any:team_analytics","o":"converted_enterprise","rr":0.954,"lo":0.558,"hi":1.633,"sig":false,"rob":false,"ee":16,"ue":74,"n":379},{"b":"any:team_analytics","o":"converted_pro","rr":0.897,"lo":0.601,"hi":1.337,"sig":false,"rob":false,"ee":28,"ue":147,"n":379},{"b":"breadth_2","o":"converted","rr":1.18,"lo":1.0,"hi":1.393,"sig":false,"rob":false,"ee":155,"ue":1371,"n":1025},{"b":"breadth_2","o":"converted_enterprise","rr":1.096,"lo":0.834,"hi":1.439,"sig":false,"rob":false,"ee":59,"ue":478,"n":1025},{"b":"breadth_2","o":"converted_pro","rr":1.236,"lo":1.003,"hi":1.524,"sig":true,"rob":false,"ee":96,"ue":893,"n":1025},{"b":"breadth_3","o":"converted","rr":0.649,"lo":0.31,"hi":1.362,"sig":false,"rob":false,"ee":7,"ue":1519,"n":172},{"b":"breadth_3","o":"converted_enterprise","rr":0.442,"lo":0.112,"hi":1.746,"sig":false,"rob":false,"ee":2,"ue":535,"n":172},{"b":"breadth_3","o":"converted_pro","rr":0.802,"lo":0.332,"hi":1.935,"sig":false,"rob":false,"ee":5,"ue":984,"n":172},{"b":"dormant_14","o":"converted","rr":0.872,"lo":0.688,"hi":1.107,"sig":false,"rob":false,"ee":84,"ue":1035,"n":null},{"b":"dormant_14","o":"converted_enterprise","rr":0.918,"lo":0.647,"hi":1.304,"sig":false,"rob":false,"ee":40,"ue":364,"n":null},{"b":"dormant_14","o":"converted_pro","rr":0.836,"lo":0.605,"hi":1.155,"sig":false,"rob":false,"ee":44,"ue":671,"n":null},{"b":"events_10","o":"converted","rr":0.189,"lo":0.072,"hi":0.499,"sig":true,"rob":true,"ee":4,"ue":1522,"n":1149},{"b":"events_10","o":"converted_enterprise","rr":0.084,"lo":0.011,"hi":0.616,"sig":true,"rob":false,"ee":1,"ue":536,"n":1149},{"b":"events_10","o":"converted_pro","rr":0.307,"lo":0.101,"hi":0.939,"sig":true,"rob":false,"ee":3,"ue":986,"n":1149},{"b":"never_active","o":"converted","rr":0.435,"lo":0.388,"hi":0.487,"sig":true,"rob":true,"ee":407,"ue":1119,"n":null},{"b":"never_active","o":"converted_enterprise","rr":0.44,"lo":0.361,"hi":0.537,"sig":true,"rob":true,"ee":133,"ue":404,"n":null},{"b":"never_active","o":"converted_pro","rr":0.432,"lo":0.375,"hi":0.497,"sig":true,"rob":true,"ee":274,"ue":715,"n":null},{"b":"share:advanced_export","o":"converted","rr":1.1,"lo":0.816,"hi":1.482,"sig":false,"rob":false,"ee":45,"ue":995,"n":333},{"b":"share:advanced_export","o":"converted_enterprise","rr":1.023,"lo":0.63,"hi":1.663,"sig":false,"rob":false,"ee":17,"ue":361,"n":333},{"b":"share:advanced_export","o":"converted_pro","rr":1.152,"lo":0.789,"hi":1.681,"sig":false,"rob":false,"ee":28,"ue":634,"n":333},{"b":"share:ai_insights","o":"converted","rr":1.121,"lo":0.912,"hi":1.377,"sig":false,"rob":false,"ee":97,"ue":1255,"n":694},{"b":"share:ai_insights","o":"converted_enterprise","rr":0.902,"lo":0.631,"hi":1.29,"sig":false,"rob":false,"ee":32,"ue":453,"n":694},{"b":"share:ai_insights","o":"converted_pro","rr":1.271,"lo":0.987,"hi":1.637,"sig":false,"rob":false,"ee":65,"ue":802,"n":694},{"b":"share:api_access","o":"converted","rr":0.897,"lo":0.507,"hi":1.588,"sig":false,"rob":false,"ee":12,"ue":667,"n":108},{"b":"share:api_access","o":"converted_enterprise","rr":0.969,"lo":0.401,"hi":2.345,"sig":false,"rob":false,"ee":5,"ue":227,"n":108},{"b":"share:api_access","o":"converted_pro","rr":0.852,"lo":0.404,"hi":1.8,"sig":false,"rob":false,"ee":7,"ue":440,"n":108},{"b":"share:real_time_collab","o":"converted","rr":1.245,"lo":1.078,"hi":1.437,"sig":true,"rob":false,"ee":214,"ue":1301,"n":1216},{"b":"share:real_time_collab","o":"converted_enterprise","rr":1.219,"lo":0.966,"hi":1.538,"sig":false,"rob":false,"ee":82,"ue":451,"n":1216},{"b":"share:real_time_collab","o":"converted_pro","rr":1.261,"lo":1.05,"hi":1.514,"sig":true,"rob":false,"ee":132,"ue":850,"n":1216},{"b":"share:team_analytics","o":"converted","rr":0.584,"lo":0.274,"hi":1.242,"sig":false,"rob":false,"ee":7,"ue":258,"n":187},{"b":"share:team_analytics","o":"converted_enterprise","rr":0.664,"lo":0.21,"hi":2.1,"sig":false,"rob":false,"ee":3,"ue":87,"n":187},{"b":"share:team_analytics","o":"converted_pro","rr":0.535,"lo":0.197,"hi":1.454,"sig":false,"rob":false,"ee":4,"ue":171,"n":187},{"b":"share_any","o":"converted","rr":1.259,"lo":1.119,"hi":1.417,"sig":true,"rob":true,"ee":359,"ue":1167,"n":2090},{"b":"share_any","o":"converted_enterprise","rr":1.121,"lo":0.921,"hi":1.363,"sig":false,"rob":false,"ee":129,"ue":408,"n":2090},{"b":"share_any","o":"converted_pro","rr":1.35,"lo":1.164,"hi":1.566,"sig":true,"rob":true,"ee":230,"ue":759,"n":2090},{"b":"use:advanced_export","o":"converted","rr":1.233,"lo":1.019,"hi":1.493,"sig":true,"rob":false,"ee":120,"ue":920,"n":610},{"b":"use:advanced_export","o":"converted_enterprise","rr":1.234,"lo":0.91,"hi":1.673,"sig":false,"rob":false,"ee":48,"ue":330,"n":610},{"b":"use:advanced_export","o":"converted_pro","rr":1.233,"lo":0.964,"hi":1.577,"sig":false,"rob":false,"ee":72,"ue":590,"n":610},{"b":"use:ai_insights","o":"converted","rr":1.165,"lo":1.016,"hi":1.336,"sig":true,"rob":false,"ee":240,"ue":1112,"n":1203},{"b":"use:ai_insights","o":"converted_enterprise","rr":0.974,"lo":0.772,"hi":1.228,"sig":false,"rob":false,"ee":81,"ue":404,"n":1203},{"b":"use:ai_insights","o":"converted_pro","rr":1.293,"lo":1.091,"hi":1.532,"sig":true,"rob":false,"ee":159,"ue":708,"n":1203},{"b":"use:api_access","o":"converted","rr":1.082,"lo":0.775,"hi":1.509,"sig":false,"rob":false,"ee":37,"ue":642,"n":240},{"b":"use:api_access","o":"converted_enterprise","rr":1.46,"lo":0.902,"hi":2.365,"sig":false,"rob":false,"ee":18,"ue":214,"n":240},{"b":"use:api_access","o":"converted_pro","rr":0.868,"lo":0.547,"hi":1.378,"sig":false,"rob":false,"ee":19,"ue":428,"n":240},{"b":"use:real_time_collab","o":"converted","rr":1.578,"lo":1.423,"hi":1.749,"sig":true,"rob":true,"ee":542,"ue":973,"n":1933},{"b":"use:real_time_collab","o":"converted_enterprise","rr":1.572,"lo":1.322,"hi":1.869,"sig":true,"rob":true,"ee":202,"ue":331,"n":1933},{"b":"use:real_time_collab","o":"converted_pro","rr":1.581,"lo":1.391,"hi":1.797,"sig":true,"rob":true,"ee":340,"ue":642,"n":1933},{"b":"use:team_analytics","o":"converted","rr":0.769,"lo":0.52,"hi":1.137,"sig":false,"rob":false,"ee":27,"ue":238,"n":308},{"b":"use:team_analytics","o":"converted_enterprise","rr":0.705,"lo":0.357,"hi":1.393,"sig":false,"rob":false,"ee":9,"ue":81,"n":308},{"b":"use:team_analytics","o":"converted_pro","rr":0.804,"lo":0.499,"hi":1.298,"sig":false,"rob":false,"ee":18,"ue":157,"n":308},{"b":"use_any","o":"converted","rr":1.623,"lo":1.469,"hi":1.794,"sig":true,"rob":true,"ee":804,"ue":722,"n":3121},{"b":"use_any","o":"converted_enterprise","rr":1.582,"lo":1.335,"hi":1.874,"sig":true,"rob":true,"ee":297,"ue":240,"n":3121},{"b":"use_any","o":"converted_pro","rr":1.646,"lo":1.455,"hi":1.864,"sig":true,"rob":true,"ee":507,"ue":482,"n":3121},{"b":"view:advanced_export","o":"converted","rr":1.084,"lo":0.879,"hi":1.337,"sig":false,"rob":false,"ee":95,"ue":945,"n":560},{"b":"view:advanced_export","o":"converted_enterprise","rr":0.956,"lo":0.674,"hi":1.356,"sig":false,"rob":false,"ee":34,"ue":344,"n":560},{"b":"view:advanced_export","o":"converted_pro","rr":1.17,"lo":0.9,"hi":1.521,"sig":false,"rob":false,"ee":61,"ue":601,"n":560},{"b":"view:ai_insights","o":"converted","rr":1.138,"lo":0.986,"hi":1.313,"sig":false,"rob":false,"ee":212,"ue":1140,"n":1128},{"b":"view:ai_insights","o":"converted_enterprise","rr":0.906,"lo":0.704,"hi":1.167,"sig":false,"rob":false,"ee":68,"ue":417,"n":1128},{"b":"view:ai_insights","o":"converted_pro","rr":1.289,"lo":1.082,"hi":1.535,"sig":true,"rob":false,"ee":144,"ue":723,"n":1128},{"b":"view:api_access","o":"converted","rr":1.057,"lo":0.741,"hi":1.509,"sig":false,"rob":false,"ee":32,"ue":647,"n":226},{"b":"view:api_access","o":"converted_enterprise","rr":1.229,"lo":0.714,"hi":2.115,"sig":false,"rob":false,"ee":14,"ue":218,"n":226},{"b":"view:api_access","o":"converted_pro","rr":0.954,"lo":0.596,"hi":1.529,"sig":false,"rob":false,"ee":18,"ue":429,"n":226},{"b":"view:real_time_collab","o":"converted","rr":1.544,"lo":1.388,"hi":1.718,"sig":true,"rob":true,"ee":498,"ue":1017,"n":1873},{"b":"view:real_time_collab","o":"converted_enterprise","rr":1.618,"lo":1.359,"hi":1.927,"sig":true,"rob":true,"ee":193,"ue":340,"n":1873},{"b":"view:real_time_collab","o":"converted_pro","rr":1.502,"lo":1.312,"hi":1.718,"sig":true,"rob":true,"ee":305,"ue":677,"n":1873},{"b":"view:team_analytics","o":"converted","rr":0.955,"lo":0.64,"hi":1.426,"sig":false,"rob":false,"ee":26,"ue":239,"n":303},{"b":"view:team_analytics","o":"converted_enterprise","rr":1.128,"lo":0.604,"hi":2.107,"sig":false,"rob":false,"ee":11,"ue":79,"n":303},{"b":"view:team_analytics","o":"converted_pro","rr":0.859,"lo":0.509,"hi":1.451,"sig":false,"rob":false,"ee":15,"ue":160,"n":303},{"b":"view_only","o":"converted","rr":0.977,"lo":0.858,"hi":1.113,"sig":false,"rob":false,"ee":315,"ue":804,"n":null},{"b":"view_only","o":"converted_enterprise","rr":1.002,"lo":0.804,"hi":1.25,"sig":false,"rob":false,"ee":107,"ue":297,"n":null},{"b":"view_only","o":"converted_pro","rr":0.963,"lo":0.82,"hi":1.132,"sig":false,"rob":false,"ee":208,"ue":507,"n":null},{"b":"active_3d","o":"cancellation","rr":0.87,"lo":0.644,"hi":1.177,"sig":false,"rob":false,"ee":202,"ue":51,"n":1327},{"b":"active_3d","o":"contraction","rr":1.055,"lo":0.724,"hi":1.539,"sig":false,"rob":false,"ee":152,"ue":32,"n":1320},{"b":"active_3d","o":"expansion","rr":1.063,"lo":0.846,"hi":1.336,"sig":false,"rob":false,"ee":440,"ue":93,"n":1296},{"b":"active_7d","o":"cancellation","rr":0.83,"lo":0.643,"hi":1.073,"sig":false,"rob":false,"ee":141,"ue":112,"n":1103},{"b":"active_7d","o":"contraction","rr":1.103,"lo":0.817,"hi":1.487,"sig":false,"rob":false,"ee":115,"ue":69,"n":1081},{"b":"active_7d","o":"expansion","rr":1.124,"lo":0.94,"hi":1.345,"sig":false,"rob":false,"ee":328,"ue":205,"n":1034},{"b":"any:advanced_export","o":"cancellation","rr":0.716,"lo":0.523,"hi":0.98,"sig":true,"rob":false,"ee":49,"ue":192,"n":381},{"b":"any:advanced_export","o":"contraction","rr":1.056,"lo":0.75,"hi":1.487,"sig":false,"rob":false,"ee":45,"ue":126,"n":379},{"b":"any:advanced_export","o":"expansion","rr":0.986,"lo":0.805,"hi":1.208,"sig":false,"rob":false,"ee":124,"ue":370,"n":369},{"b":"any:ai_insights","o":"cancellation","rr":0.924,"lo":0.716,"hi":1.191,"sig":false,"rob":false,"ee":100,"ue":152,"n":600},{"b":"any:ai_insights","o":"contraction","rr":0.967,"lo":0.716,"hi":1.305,"sig":false,"rob":false,"ee":71,"ue":113,"n":600},{"b":"any:ai_insights","o":"expansion","rr":0.953,"lo":0.799,"hi":1.137,"sig":false,"rob":false,"ee":204,"ue":324,"n":596},{"b":"any:api_access","o":"cancellation","rr":0.588,"lo":0.367,"hi":0.941,"sig":true,"rob":false,"ee":19,"ue":183,"n":227},{"b":"any:api_access","o":"contraction","rr":0.898,"lo":0.57,"hi":1.415,"sig":false,"rob":false,"ee":22,"ue":126,"n":220},{"b":"any:api_access","o":"expansion","rr":1.386,"lo":1.089,"hi":1.764,"sig":true,"rob":false,"ee":82,"ue":349,"n":206},{"b":"any:custom_workflows","o":"cancellation","rr":0.76,"lo":0.331,"hi":1.741,"sig":false,"rob":false,"ee":6,"ue":80,"n":130},{"b":"any:custom_workflows","o":"contraction","rr":0.928,"lo":0.331,"hi":2.597,"sig":false,"rob":false,"ee":4,"ue":46,"n":121},{"b":"any:custom_workflows","o":"expansion","rr":1.465,"lo":0.882,"hi":2.434,"sig":false,"rob":false,"ee":17,"ue":132,"n":97},{"b":"any:real_time_collab","o":"cancellation","rr":0.753,"lo":0.587,"hi":0.965,"sig":true,"rob":false,"ee":147,"ue":106,"n":976},{"b":"any:real_time_collab","o":"contraction","rr":1.09,"lo":0.802,"hi":1.481,"sig":false,"rob":false,"ee":123,"ue":61,"n":976},{"b":"any:real_time_collab","o":"expansion","rr":0.954,"lo":0.798,"hi":1.14,"sig":false,"rob":false,"ee":345,"ue":188,"n":976},{"b":"any:team_analytics","o":"cancellation","rr":0.839,"lo":0.592,"hi":1.189,"sig":false,"rob":false,"ee":46,"ue":104,"n":491},{"b":"any:team_analytics","o":"contraction","rr":0.985,"lo":0.658,"hi":1.475,"sig":false,"rob":false,"ee":35,"ue":70,"n":464},{"b":"any:team_analytics","o":"expansion","rr":1.029,"lo":0.814,"hi":1.301,"sig":false,"rob":false,"ee":105,"ue":210,"n":407},{"b":"breadth_2","o":"cancellation","rr":0.751,"lo":0.581,"hi":0.97,"sig":true,"rob":false,"ee":94,"ue":159,"n":827},{"b":"breadth_2","o":"contraction","rr":0.998,"lo":0.746,"hi":1.334,"sig":false,"rob":false,"ee":81,"ue":103,"n":806},{"b":"breadth_2","o":"expansion","rr":1.142,"lo":0.959,"hi":1.359,"sig":false,"rob":false,"ee":244,"ue":289,"n":752},{"b":"breadth_3","o":"cancellation","rr":0.716,"lo":0.469,"hi":1.093,"sig":false,"rob":false,"ee":24,"ue":229,"n":309},{"b":"breadth_3","o":"contraction","rr":0.692,"lo":0.421,"hi":1.14,"sig":false,"rob":false,"ee":17,"ue":167,"n":288},{"b":"breadth_3","o":"expansion","rr":1.216,"lo":0.95,"hi":1.556,"sig":false,"rob":false,"ee":73,"ue":460,"n":262},{"b":"dormant_14","o":"cancellation","rr":1.242,"lo":0.914,"hi":1.687,"sig":false,"rob":false,"ee":131,"ue":86,"n":null},{"b":"dormant_14","o":"contraction","rr":1.465,"lo":0.988,"hi":2.173,"sig":false,"rob":false,"ee":105,"ue":60,"n":null},{"b":"dormant_14","o":"expansion","rr":1.011,"lo":0.821,"hi":1.244,"sig":false,"rob":false,"ee":260,"ue":212,"n":null},{"b":"events_10","o":"cancellation","rr":0.758,"lo":0.586,"hi":0.981,"sig":true,"rob":false,"ee":101,"ue":152,"n":931},{"b":"events_10","o":"contraction","rr":0.993,"lo":0.735,"hi":1.341,"sig":false,"rob":false,"ee":86,"ue":98,"n":899},{"b":"events_10","o":"expansion","rr":1.064,"lo":0.892,"hi":1.27,"sig":false,"rob":false,"ee":248,"ue":285,"n":838},{"b":"never_active","o":"cancellation","rr":1.309,"lo":0.919,"hi":1.864,"sig":false,"rob":false,"ee":36,"ue":217,"n":null},{"b":"never_active","o":"contraction","rr":0.89,"lo":0.556,"hi":1.427,"sig":false,"rob":false,"ee":19,"ue":165,"n":null},{"b":"never_active","o":"expansion","rr":0.995,"lo":0.76,"hi":1.303,"sig":false,"rob":false,"ee":61,"ue":472,"n":null},{"b":"share:advanced_export","o":"cancellation","rr":0.957,"lo":0.623,"hi":1.47,"sig":false,"rob":false,"ee":23,"ue":218,"n":161},{"b":"share:advanced_export","o":"contraction","rr":1.41,"lo":0.9,"hi":2.21,"sig":false,"rob":false,"ee":22,"ue":149,"n":158},{"b":"share:advanced_export","o":"expansion","rr":1.268,"lo":0.96,"hi":1.675,"sig":false,"rob":false,"ee":56,"ue":438,"n":153},{"b":"share:ai_insights","o":"cancellation","rr":1.028,"lo":0.761,"hi":1.389,"sig":false,"rob":false,"ee":55,"ue":197,"n":349},{"b":"share:ai_insights","o":"contraction","rr":0.982,"lo":0.686,"hi":1.406,"sig":false,"rob":false,"ee":38,"ue":146,"n":346},{"b":"share:ai_insights","o":"expansion","rr":1.05,"lo":0.85,"hi":1.296,"sig":false,"rob":false,"ee":110,"ue":418,"n":335},{"b":"share:api_access","o":"cancellation","rr":0.565,"lo":0.25,"hi":1.275,"sig":false,"rob":false,"ee":6,"ue":196,"n":86},{"b":"share:api_access","o":"contraction","rr":0.757,"lo":0.337,"hi":1.703,"sig":false,"rob":false,"ee":6,"ue":142,"n":82},{"b":"share:api_access","o":"expansion","rr":1.578,"lo":1.093,"hi":2.278,"sig":true,"rob":false,"ee":31,"ue":400,"n":75},{"b":"share:custom_workflows","o":"expansion","rr":1.587,"lo":0.587,"hi":4.296,"sig":false,"rob":false,"ee":4,"ue":145,"n":27},{"b":"share:real_time_collab","o":"cancellation","rr":0.853,"lo":0.664,"hi":1.095,"sig":false,"rob":false,"ee":97,"ue":156,"n":691},{"b":"share:real_time_collab","o":"contraction","rr":1.372,"lo":1.026,"hi":1.835,"sig":true,"rob":false,"ee":93,"ue":91,"n":686},{"b":"share:real_time_collab","o":"expansion","rr":1.09,"lo":0.917,"hi":1.295,"sig":false,"rob":false,"ee":241,"ue":292,"n":675},{"b":"share:team_analytics","o":"cancellation","rr":0.844,"lo":0.532,"hi":1.338,"sig":false,"rob":false,"ee":21,"ue":129,"n":287},{"b":"share:team_analytics","o":"contraction","rr":1.057,"lo":0.637,"hi":1.756,"sig":false,"rob":false,"ee":18,"ue":87,"n":271},{"b":"share:team_analytics","o":"expansion","rr":0.957,"lo":0.702,"hi":1.304,"sig":false,"rob":false,"ee":47,"ue":268,"n":226},{"b":"share_any","o":"cancellation","rr":0.935,"lo":0.727,"hi":1.203,"sig":false,"rob":false,"ee":158,"ue":95,"n":1101},{"b":"share_any","o":"contraction","rr":1.257,"lo":0.918,"hi":1.722,"sig":false,"rob":false,"ee":127,"ue":57,"n":1088},{"b":"share_any","o":"expansion","rr":1.141,"lo":0.949,"hi":1.371,"sig":false,"rob":false,"ee":353,"ue":180,"n":1054},{"b":"use:advanced_export","o":"cancellation","rr":0.748,"lo":0.533,"hi":1.051,"sig":false,"rob":false,"ee":40,"ue":201,"n":322},{"b":"use:advanced_export","o":"contraction","rr":1.028,"lo":0.711,"hi":1.487,"sig":false,"rob":false,"ee":36,"ue":135,"n":317},{"b":"use:advanced_export","o":"expansion","rr":1.125,"lo":0.909,"hi":1.392,"sig":false,"rob":false,"ee":108,"ue":386,"n":306},{"b":"use:ai_insights","o":"cancellation","rr":0.958,"lo":0.738,"hi":1.243,"sig":false,"rob":false,"ee":89,"ue":163,"n":549},{"b":"use:ai_insights","o":"contraction","rr":0.978,"lo":0.72,"hi":1.328,"sig":false,"rob":false,"ee":63,"ue":121,"n":547},{"b":"use:ai_insights","o":"expansion","rr":0.946,"lo":0.788,"hi":1.134,"sig":false,"rob":false,"ee":179,"ue":349,"n":541},{"b":"use:api_access","o":"cancellation","rr":0.645,"lo":0.376,"hi":1.107,"sig":false,"rob":false,"ee":14,"ue":188,"n":173},{"b":"use:api_access","o":"contraction","rr":0.536,"lo":0.28,"hi":1.025,"sig":false,"rob":false,"ee":10,"ue":138,"n":165},{"b":"use:api_access","o":"expansion","rr":1.247,"lo":0.938,"hi":1.658,"sig":false,"rob":false,"ee":55,"ue":376,"n":157},{"b":"use:custom_workflows","o":"cancellation","rr":0.578,"lo":0.183,"hi":1.823,"sig":false,"rob":false,"ee":3,"ue":83,"n":101},{"b":"use:custom_workflows","o":"contraction","rr":0.997,"lo":0.311,"hi":3.2,"sig":false,"rob":false,"ee":3,"ue":47,"n":95},{"b":"use:custom_workflows","o":"expansion","rr":1.067,"lo":0.542,"hi":2.1,"sig":false,"rob":false,"ee":9,"ue":140,"n":72},{"b":"use:real_time_collab","o":"cancellation","rr":0.773,"lo":0.606,"hi":0.987,"sig":true,"rob":false,"ee":139,"ue":114,"n":947},{"b":"use:real_time_collab","o":"contraction","rr":1.153,"lo":0.854,"hi":1.559,"sig":false,"rob":false,"ee":119,"ue":65,"n":945},{"b":"use:real_time_collab","o":"expansion","rr":1.003,"lo":0.841,"hi":1.196,"sig":false,"rob":false,"ee":332,"ue":201,"n":943},{"b":"use:team_analytics","o":"cancellation","rr":0.881,"lo":0.612,"hi":1.267,"sig":false,"rob":false,"ee":40,"ue":110,"n":461},{"b":"use:team_analytics","o":"contraction","rr":0.904,"lo":0.587,"hi":1.391,"sig":false,"rob":false,"ee":28,"ue":77,"n":432},{"b":"use:team_analytics","o":"expansion","rr":1.024,"lo":0.8,"hi":1.31,"sig":false,"rob":false,"ee":87,"ue":228,"n":368},{"b":"use_any","o":"cancellation","rr":0.822,"lo":0.6,"hi":1.127,"sig":false,"rob":false,"ee":206,"ue":47,"n":1344},{"b":"use_any","o":"contraction","rr":1.089,"lo":0.728,"hi":1.628,"sig":false,"rob":false,"ee":157,"ue":27,"n":1338},{"b":"use_any","o":"expansion","rr":0.941,"lo":0.746,"hi":1.187,"sig":false,"rob":false,"ee":443,"ue":90,"n":1311},{"b":"view:advanced_export","o":"cancellation","rr":0.752,"lo":0.529,"hi":1.068,"sig":false,"rob":false,"ee":37,"ue":204,"n":302},{"b":"view:advanced_export","o":"contraction","rr":1.064,"lo":0.73,"hi":1.55,"sig":false,"rob":false,"ee":34,"ue":137,"n":300},{"b":"view:advanced_export","o":"expansion","rr":0.891,"lo":0.706,"hi":1.123,"sig":false,"rob":false,"ee":86,"ue":408,"n":287},{"b":"view:ai_insights","o":"cancellation","rr":0.967,"lo":0.743,"hi":1.259,"sig":false,"rob":false,"ee":87,"ue":165,"n":533},{"b":"view:ai_insights","o":"contraction","rr":0.939,"lo":0.687,"hi":1.284,"sig":false,"rob":false,"ee":59,"ue":125,"n":529},{"b":"view:ai_insights","o":"expansion","rr":0.956,"lo":0.796,"hi":1.148,"sig":false,"rob":false,"ee":174,"ue":354,"n":523},{"b":"view:api_access","o":"cancellation","rr":0.522,"lo":0.286,"hi":0.953,"sig":true,"rob":false,"ee":11,"ue":191,"n":162},{"b":"view:api_access","o":"contraction","rr":1.03,"lo":0.622,"hi":1.708,"sig":false,"rob":false,"ee":17,"ue":131,"n":158},{"b":"view:api_access","o":"expansion","rr":1.507,"lo":1.141,"hi":1.991,"sig":true,"rob":false,"ee":58,"ue":373,"n":141},{"b":"view:custom_workflows","o":"cancellation","rr":1.121,"lo":0.455,"hi":2.762,"sig":false,"rob":false,"ee":5,"ue":81,"n":87},{"b":"view:custom_workflows","o":"contraction","rr":0.807,"lo":0.196,"hi":3.323,"sig":false,"rob":false,"ee":2,"ue":48,"n":82},{"b":"view:custom_workflows","o":"expansion","rr":1.423,"lo":0.722,"hi":2.803,"sig":false,"rob":false,"ee":9,"ue":140,"n":59},{"b":"view:real_time_collab","o":"cancellation","rr":0.742,"lo":0.582,"hi":0.946,"sig":true,"rob":false,"ee":135,"ue":118,"n":941},{"b":"view:real_time_collab","o":"contraction","rr":1.027,"lo":0.763,"hi":1.382,"sig":false,"rob":false,"ee":113,"ue":71,"n":936},{"b":"view:real_time_collab","o":"expansion","rr":0.992,"lo":0.833,"hi":1.18,"sig":false,"rob":false,"ee":326,"ue":207,"n":936},{"b":"view:team_analytics","o":"cancellation","rr":0.853,"lo":0.588,"hi":1.239,"sig":false,"rob":false,"ee":37,"ue":113,"n":441},{"b":"view:team_analytics","o":"contraction","rr":1.065,"lo":0.698,"hi":1.623,"sig":false,"rob":false,"ee":30,"ue":75,"n":416},{"b":"view:team_analytics","o":"expansion","rr":1.01,"lo":0.786,"hi":1.298,"sig":false,"rob":false,"ee":83,"ue":232,"n":356},{"b":"view_only","o":"cancellation","rr":0.965,"lo":0.528,"hi":1.764,"sig":false,"rob":false,"ee":11,"ue":206,"n":null},{"b":"view_only","o":"contraction","rr":0.959,"lo":0.475,"hi":1.935,"sig":false,"rob":false,"ee":8,"ue":157,"n":null},{"b":"view_only","o":"expansion","rr":1.216,"lo":0.828,"hi":1.785,"sig":false,"rob":false,"ee":29,"ue":443,"n":null}],"journey":{"base":0.3052,"nodes":[{"id":"Signup","p_convert":0.3052,"pagerank":0.0332},{"id":"real_time_collab","p_convert":0.3281,"pagerank":0.3094,"removal_effect":0.6162,"users":2244,"converted_users":804},{"id":"Not converted","p_convert":0.0,"pagerank":0.1149},{"id":"ai_insights","p_convert":0.3065,"pagerank":0.1727,"removal_effect":0.4257,"users":1444,"converted_users":404},{"id":"Converted","p_convert":1.0,"pagerank":0.0604},{"id":"advanced_export","p_convert":0.2993,"pagerank":0.1029,"removal_effect":0.2565,"users":811,"converted_users":202},{"id":"api_access","p_convert":0.2754,"pagerank":0.0603,"removal_effect":0.0963,"users":358,"converted_users":66},{"id":"team_analytics","p_convert":0.2433,"pagerank":0.0987,"removal_effect":0.1193,"users":382,"converted_users":44},{"id":"custom_workflows","p_convert":0.1591,"pagerank":0.0476,"removal_effect":0.0104,"users":74,"converted_users":0}],"edges":[{"source":"Signup","target":"real_time_collab","count":1845,"share":0.369},{"source":"Signup","target":"ai_insights","count":956,"share":0.1912},{"source":"Signup","target":"advanced_export","count":455,"share":0.091},{"source":"Signup","target":"api_access","count":159,"share":0.0318},{"source":"Signup","target":"team_analytics","count":158,"share":0.0316},{"source":"Signup","target":"Converted","count":407,"share":0.0814},{"source":"Signup","target":"Not converted","count":1006,"share":0.2012},{"source":"Signup","target":"custom_workflows","count":14,"share":0.0028},{"source":"real_time_collab","target":"real_time_collab","count":10177,"share":0.6945},{"source":"real_time_collab","target":"Not converted","count":1053,"share":0.0719},{"source":"real_time_collab","target":"ai_insights","count":1473,"share":0.1005},{"source":"real_time_collab","target":"Converted","count":662,"share":0.0452},{"source":"real_time_collab","target":"advanced_export","count":688,"share":0.0469},{"source":"real_time_collab","target":"api_access","count":200,"share":0.0136},{"source":"real_time_collab","target":"team_analytics","count":363,"share":0.0248},{"source":"real_time_collab","target":"custom_workflows","count":38,"share":0.0026},{"source":"ai_insights","target":"real_time_collab","count":1438,"share":0.2138},{"source":"ai_insights","target":"ai_insights","count":3684,"share":0.5476},{"source":"ai_insights","target":"Not converted","count":668,"share":0.0993},{"source":"ai_insights","target":"advanced_export","count":346,"share":0.0514},{"source":"ai_insights","target":"Converted","count":279,"share":0.0415},{"source":"ai_insights","target":"api_access","count":119,"share":0.0177},{"source":"ai_insights","target":"team_analytics","count":177,"share":0.0263},{"source":"ai_insights","target":"custom_workflows","count":16,"share":0.0024},{"source":"advanced_export","target":"real_time_collab","count":667,"share":0.238},{"source":"advanced_export","target":"Not converted","count":322,"share":0.1149},{"source":"advanced_export","target":"ai_insights","count":350,"share":0.1249},{"source":"advanced_export","target":"advanced_export","count":1172,"share":0.4183},{"source":"advanced_export","target":"Converted","count":119,"share":0.0425},{"source":"advanced_export","target":"api_access","count":67,"share":0.0239},{"source":"advanced_export","target":"team_analytics","count":90,"share":0.0321},{"source":"advanced_export","target":"custom_workflows","count":15,"share":0.0054},{"source":"api_access","target":"real_time_collab","count":201,"share":0.2413},{"source":"api_access","target":"Not converted","count":128,"share":0.1537},{"source":"api_access","target":"api_access","count":254,"share":0.3049},{"source":"api_access","target":"ai_insights","count":107,"share":0.1285},{"source":"api_access","target":"advanced_export","count":56,"share":0.0672},{"source":"api_access","target":"Converted","count":31,"share":0.0372},{"source":"api_access","target":"custom_workflows","count":8,"share":0.0096},{"source":"api_access","target":"team_analytics","count":48,"share":0.0576},{"source":"team_analytics","target":"Not converted","count":250,"share":0.1349},{"source":"team_analytics","target":"team_analytics","count":1007,"share":0.5434},{"source":"team_analytics","target":"real_time_collab","count":310,"share":0.1673},{"source":"team_analytics","target":"advanced_export","count":71,"share":0.0383},{"source":"team_analytics","target":"api_access","count":31,"share":0.0167},{"source":"team_analytics","target":"ai_insights","count":146,"share":0.0788},{"source":"team_analytics","target":"custom_workflows","count":10,"share":0.0054},{"source":"team_analytics","target":"Converted","count":28,"share":0.0151},{"source":"custom_workflows","target":"custom_workflows","count":42,"share":0.2937},{"source":"custom_workflows","target":"Not converted","count":47,"share":0.3287},{"source":"custom_workflows","target":"real_time_collab","count":16,"share":0.1119},{"source":"custom_workflows","target":"ai_insights","count":11,"share":0.0769},{"source":"custom_workflows","target":"team_analytics","count":10,"share":0.0699},{"source":"custom_workflows","target":"advanced_export","count":14,"share":0.0979},{"source":"custom_workflows","target":"api_access","count":3,"share":0.021}]},"naive":[{"feature":"advanced_export","ever_used":1065,"ever_used_conv_rate":0.3624,"pre_purchase_users":881,"pre_purchase_conv_rate":0.2293},{"feature":"ai_insights","ever_used":1640,"ever_used_conv_rate":0.3659,"pre_purchase_users":1444,"pre_purchase_conv_rate":0.2798},{"feature":"api_access","ever_used":637,"ever_used_conv_rate":0.3689,"pre_purchase_users":468,"pre_purchase_conv_rate":0.141},{"feature":"custom_workflows","ever_used":453,"ever_used_conv_rate":0.3311,"pre_purchase_users":303,"pre_purchase_conv_rate":0.0},{"feature":"real_time_collab","ever_used":2416,"ever_used_conv_rate":0.404,"pre_purchase_users":2244,"pre_purchase_conv_rate":0.3583},{"feature":"team_analytics","ever_used":1285,"ever_used_conv_rate":0.4062,"pre_purchase_users":807,"pre_purchase_conv_rate":0.0545}],"landmark":[{"events_before_landmark":"0","users":1628,"converted":274,"rate":0.1683046683046683},{"events_before_landmark":"1-2","users":1502,"converted":329,"rate":0.21904127829560585},{"events_before_landmark":"3-5","users":1021,"converted":192,"rate":0.188050930460333},{"events_before_landmark":"6+","users":142,"converted":24,"rate":0.16901408450704225}]};
+const SVGNS = "http://www.w3.org/2000/svg";
+const $ = (id) => document.getElementById(id);
+const fmt = (x, d = 2) => x == null ? "–" : x.toFixed(d);
+const pct = (x, d = 1) => (100 * x).toFixed(d) + "%";
+const int = (x) => x == null ? "–" : x.toLocaleString("en-US");
+
+function el(tag, attrs = {}, parent) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (typeof v === "string" && v.includes("var(")) e.style.setProperty(k, v);
+    else e.setAttribute(k, v);
+  }
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function text(parent, x, y, str, attrs = {}) { const t = el("text", { x, y, ...attrs }, parent); t.textContent = str; return t; }
+
+/* ---------- deck navigation ---------- */
+const slides = [...document.querySelectorAll(".slide")];
+let cur = 0;
+function fit() {
+  const s = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+  $("stage").style.transform = `translate(-50%, -50%) scale(${s})`;
+}
+function go(i) {
+  cur = Math.max(0, Math.min(slides.length - 1, i));
+  slides.forEach((s, k) => s.classList.toggle("on", k === cur));
+  $("count").textContent = `${cur + 1} / ${slides.length}`;
+  $("bar").style.width = `${(100 * (cur + 1)) / slides.length}%`;
+  if (location.hash !== "#" + (cur + 1)) history.replaceState(null, "", "#" + (cur + 1));
+  hideTip();
+}
+document.querySelectorAll(".pg").forEach((p) => { const i = slides.indexOf(p.closest(".slide")); p.textContent = `${i + 1} / ${slides.length}`; });
+document.addEventListener("keydown", (e) => {
+  if (e.target.tagName === "INPUT") return;
+  if (["ArrowRight", "PageDown", " "].includes(e.key)) { e.preventDefault(); go(cur + 1); }
+  else if (["ArrowLeft", "PageUp"].includes(e.key)) { e.preventDefault(); go(cur - 1); }
+  else if (e.key === "Home") go(0);
+  else if (e.key === "End") go(slides.length - 1);
+});
+$("prev").addEventListener("click", () => go(cur - 1));
+$("next").addEventListener("click", () => go(cur + 1));
+window.addEventListener("resize", fit);
+window.addEventListener("hashchange", () => go((parseInt(location.hash.slice(1), 10) || 1) - 1));
+
+/* ---------- lookup ---------- */
+const R = {};
+for (const r of DATA.rows) R[r.b + "|" + r.o] = r;
+const OUTCOMES = {
+  converted: { label: "Any purchase", short: "Purchase" },
+  converted_pro: { label: "Pro", short: "Pro" },
+  converted_enterprise: { label: "Enterprise", short: "Enterprise" },
+  expansion: { label: "Expansion", short: "Expansion", sub: "seats added, upgrades" },
+  contraction: { label: "Contraction", short: "Contraction", sub: "seats cut, downgrades" },
+  cancellation: { label: "Cancellation", short: "Cancellation" },
+};
+const GROUPS = [
+  { name: "Activity", items: ["never_active", "view_only", "active_3d", "active_7d", "events_10", "dormant_14"] },
+  { name: "Features tried", items: ["any:real_time_collab", "any:ai_insights", "any:advanced_export", "any:api_access", "any:team_analytics", "any:custom_workflows"] },
+  { name: "Depth", items: ["use_any", "share_any", "breadth_2", "breadth_3"] },
+];
+const NAMES = {
+  never_active: "No activity yet", view_only: "Viewed, never used", active_3d: "Active on 3+ days",
+  active_7d: "Active on 7+ days", events_10: "10+ events", dormant_14: "Inactive 14+ days",
+  use_any: "Hands-on use (not just views)", share_any: "Shared from any feature",
+  breadth_2: "Used 2+ features", breadth_3: "Used 3+ features",
+};
+const nameOf = (b) => NAMES[b] || (b.startsWith("any:") ? "Tried " + b.slice(4) : (DATA.labels[b] || b));
+const strength = (r) => r.rob ? "Passes the strict test" : r.sig ? "95% interval only" : "Uncertain: interval includes 1.00×";
+
+/* ---------- tooltip ---------- */
+const tip = $("tip");
+function showTip(evt, build) {
+  tip.replaceChildren(); build(tip); tip.hidden = false;
+  let x, y;
+  if (evt && evt.clientX != null && evt.type !== "focus") { x = evt.clientX; y = evt.clientY; }
+  else { const b = evt.target.getBoundingClientRect(); x = b.right; y = b.top; }
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  tip.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, x + 14)) + "px";
+  tip.style.top = Math.max(8, Math.min(window.innerHeight - h - 8, y + 14)) + "px";
+}
+function hideTip() { tip.hidden = true; }
+function tipLine(p, cls, s) { const d = document.createElement("div"); d.className = cls; d.textContent = s; p.appendChild(d); }
+function tipRatio(p, r, title) {
+  const row = document.createElement("div"); row.className = "row";
+  const key = document.createElement("span"); key.className = "key";
+  key.style.background = !r.sig ? "var(--unsure)" : r.rr > 1 ? "var(--pos)" : "var(--neg)";
+  const v = document.createElement("span"); v.className = "v"; v.textContent = fmt(r.rr) + "×";
+  const k = document.createElement("span"); k.className = "k"; k.textContent = title;
+  row.append(key, v, k); p.appendChild(row);
+}
+function bindHover(node, on, off = hideTip) {
+  node.addEventListener("pointermove", on); node.addEventListener("focus", on);
+  node.addEventListener("pointerleave", off); node.addEventListener("blur", off);
+}
+
+/* ---------- title + timing slides ---------- */
+(function facts() {
+  const s = DATA.summary;
+  for (const [b, t] of [[int(s.users), "free signups"], [int(s.converted), `bought (${pct(s.converted / s.users)})`],
+    [int(s.pro) + " / " + int(s.enterprise), "Pro / Enterprise"], [int(s.events), "usage events, 6 features"]]) {
+    const d = document.createElement("div"); d.className = "fact";
+    const bb = document.createElement("b"); bb.textContent = b;
+    const sp = document.createElement("span"); sp.textContent = t;
+    d.append(bb, sp); $("facts").appendChild(d);
+  }
+  $("after-pct").textContent = pct(s.converter_events_after_purchase / s.converter_events, 0);
+})();
+(function naive() {
+  const tb = $("ntable"), head = tb.insertRow();
+  for (const [h, n] of [["Feature", 0], ["Bought, counting all usage", 1], ["Bought, counting usage while free", 1], ["Rate ratio, time-aware", 1]]) {
+    const th = document.createElement("th"); th.textContent = h; if (n) th.className = "n"; head.appendChild(th);
+  }
+  for (const x of [...DATA.naive].sort((a, b) => b.ever_used_conv_rate - a.ever_used_conv_rate)) {
+    const r = R["any:" + x.feature + "|converted"], tr = tb.insertRow();
+    if (x.pre_purchase_conv_rate < 0.15) tr.className = "flag";
+    for (const [v, c] of [[x.feature, 0], [pct(x.ever_used_conv_rate), 1], [pct(x.pre_purchase_conv_rate), 1],
+      [r ? fmt(r.rr) + "×" + (r.sig ? "" : " (unclear)") : "no data", 1]]) {
+      const td = tr.insertCell(); td.textContent = v; if (c) td.className = "n";
+    }
+  }
+})();
+
+/* ---------- forest (full and mini) ---------- */
+function forest(svg, outcome, items, { W = 960, rowH = 28, labelW = 230, sort = true, valueCol = true, lo = 0.05, hi = 4, ticks = [0.05, 0.1, 0.25, 0.5, 1, 2, 4] } = {}) {
+  svg.replaceChildren();
+  const x0 = labelW + 20, x1 = valueCol ? W - 170 : W - 20, top = 30;
+  const sx = (v) => x0 + (Math.log(Math.min(hi, Math.max(lo, v))) - Math.log(lo)) / (Math.log(hi) - Math.log(lo)) * (x1 - x0);
+  let rows = items.map(b => ({ b, r: R[b + "|" + outcome] }));
+  if (sort) rows.sort((a, c) => (c.r ? c.r.rr : -1) - (a.r ? a.r.rr : -1));
+  const H = top + rows.length * rowH + 30;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  for (const t of ticks) {
+    el("line", { x1: sx(t), x2: sx(t), y1: top - 8, y2: H - 26, stroke: t === 1 ? "var(--axis)" : "var(--line)", "stroke-width": t === 1 ? 1.5 : 1 }, svg);
+    text(svg, sx(t), H - 8, t + "×", { "text-anchor": "middle", class: "tm", "font-size": 12, "font-family": "var(--font-data)" });
+  }
+  text(svg, sx(1) - 8, top - 14, "← lowers", { "text-anchor": "end", class: "tm", "font-size": 12 });
+  text(svg, sx(1) + 8, top - 14, "raises →", { class: "tm", "font-size": 12 });
+  rows.forEach(({ b, r }, i) => {
+    const y = top + i * rowH + rowH / 2;
+    const g = el("g", { tabindex: 0, "aria-label": nameOf(b) + (r ? `: ${fmt(r.rr)} times` : ": no data") }, svg);
+    el("rect", { x: 0, y: y - rowH / 2, width: W, height: rowH, fill: "transparent" }, g);
+    text(g, labelW, y + 5, nameOf(b), { "text-anchor": "end", "font-size": 14 });
+    if (!r) { text(g, x0 + 4, y + 5, "no data for this outcome", { class: "tm", "font-size": 13 }); return; }
+    const col = !r.sig ? "var(--unsure)" : r.rr > 1 ? "var(--pos)" : "var(--neg)";
+    el("line", { x1: sx(r.lo), x2: sx(r.hi), y1: y, y2: y, stroke: col, "stroke-width": 2.2, "stroke-linecap": "round" }, g);
+    if (r.lo < lo) el("path", { d: `M${sx(lo) + 6},${y - 4} L${sx(lo)},${y} L${sx(lo) + 6},${y + 4}`, fill: "none", stroke: col, "stroke-width": 2 }, g);
+    if (r.rob || !r.sig) el("circle", { cx: sx(r.rr), cy: y, r: 6, fill: col, stroke: "var(--surface)", "stroke-width": 2 }, g);
+    else el("circle", { cx: sx(r.rr), cy: y, r: 5, fill: "var(--surface)", stroke: col, "stroke-width": 2.2 }, g);
+    if (valueCol) text(g, x1 + 18, y + 5, `${fmt(r.rr)}×  (${fmt(r.lo)}–${fmt(r.hi)})`, { class: "t2", "font-size": 13, "font-family": "var(--font-data)" });
+    bindHover(g, (e) => showTip(e, (t) => {
+      tipLine(t, "k", nameOf(b) + " → " + OUTCOMES[outcome].label);
+      tipRatio(t, r, `(${fmt(r.lo)}–${fmt(r.hi)})`);
+      tipLine(t, "k", strength(r));
+      tipLine(t, "k", `${int(r.ee)} outcomes after the behaviour, ${int(r.ue)} without it`);
+      if (r.n) tipLine(t, "k", `${int(r.n)} users did it while at risk`);
+    }));
+  });
+}
+forest($("mini-pos"), "converted", ["any:real_time_collab", "use_any", "any:ai_insights", "active_3d", "share_any", "any:advanced_export"], { W: 640, rowH: 44, labelW: 200, valueCol: false, lo: 0.5, hi: 4, ticks: [0.5, 1, 1.5, 2, 3, 4] });
+forest($("mini-cancel"), "cancellation", ["any:api_access", "any:advanced_export", "breadth_2", "any:real_time_collab", "events_10", "any:ai_insights", "any:team_analytics"], { W: 640, rowH: 40, labelW: 200, valueCol: false, lo: 0.25, hi: 2, ticks: [0.25, 0.5, 0.75, 1, 1.5, 2] });
+
+let FO = "converted";
+const F_ITEMS = GROUPS.flatMap(g => g.items);
+(function forestControls() {
+  const seg = $("f-seg");
+  for (const [o, meta] of Object.entries(OUTCOMES)) {
+    const btn = document.createElement("button"); btn.type = "button"; btn.textContent = meta.label;
+    btn.setAttribute("aria-pressed", String(o === FO));
+    btn.addEventListener("click", () => { FO = o; for (const b of seg.children) b.setAttribute("aria-pressed", String(b === btn)); forest($("forest"), FO, F_ITEMS); });
+    seg.appendChild(btn);
+  }
+  forest($("forest"), FO, F_ITEMS);
+})();
+
+/* ---------- landmark bars ---------- */
+(function landmark() {
+  const svg = $("landmark"), lm = DATA.landmark;
+  const W = 600, H = 330, x0 = 60, x1 = W - 20, base = H - 50, topY = 30;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  const max = 0.25, sy = (v) => base - (v / max) * (base - topY);
+  for (const t of [0, 0.05, 0.1, 0.15, 0.2, 0.25]) {
+    el("line", { x1: x0, x2: x1, y1: sy(t), y2: sy(t), stroke: t === 0 ? "var(--axis)" : "var(--line)" }, svg);
+    text(svg, x0 - 10, sy(t) + 4, pct(t, 0), { "text-anchor": "end", class: "tm", "font-size": 12, "font-family": "var(--font-data)" });
+  }
+  const bw = (x1 - x0) / lm.length;
+  lm.forEach((d, i) => {
+    const cx = x0 + bw * i + bw / 2, w = bw * 0.5, best = i === 1;
+    const g = el("g", { tabindex: 0, "aria-label": `${d.events_before_landmark} events: ${pct(d.rate)}` }, svg);
+    el("path", { d: `M${cx - w / 2},${base} V${sy(d.rate) + 4} q0,-4 4,-4 H${cx + w / 2 - 4} q4,0 4,4 V${base} Z`, fill: best ? "var(--pos)" : "var(--axis)" }, g);
+    text(g, cx, sy(d.rate) - 10, pct(d.rate), { "text-anchor": "middle", "font-size": 15, "font-weight": 600, "font-family": "var(--font-data)" });
+    text(g, cx, base + 22, d.events_before_landmark + " events", { "text-anchor": "middle", class: "t2", "font-size": 13 });
+    text(g, cx, base + 40, int(d.users) + " users", { "text-anchor": "middle", class: "tm", "font-size": 12 });
+    el("rect", { x: cx - bw / 2, y: topY, width: bw, height: base - topY, fill: "transparent" }, g);
+    bindHover(g, (e) => showTip(e, (t) => { tipLine(t, "k", `${d.events_before_landmark} events in days 0–13`); tipLine(t, "v", pct(d.rate)); tipLine(t, "k", `${int(d.converted)} of ${int(d.users)} bought in days 14–95`); }));
+  });
+})();
+
+/* ---------- dependency graph ---------- */
+const G = { mode: "both", unsure: false };
+function drawGraph() {
+  const svg = $("graph"); svg.replaceChildren();
+  const W = 1080, xL = 300, xR = 740, top = 40, rowH = 26, gapH = 14;
+  const pos = {};
+  let y = top;
+  const layer = el("g", {}, svg), edgesG = el("g", {}, layer), nodesG = el("g", {}, layer);
+  text(nodesG, xL, 16, "WHILE FREE", { "text-anchor": "end", class: "tm", "font-size": 11, "letter-spacing": "0.08em" });
+  for (const g of GROUPS) {
+    text(nodesG, 16, y + 4, g.name, { class: "tm", "font-size": 12, "font-weight": 600 });
+    for (const b of g.items) { pos[b] = y; y += rowH; }
+    y += gapH;
+  }
+  const H = y - gapH + 4;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  const pre = ["converted_pro", "converted_enterprise"], post = ["expansion", "contraction", "cancellation"];
+  const shown = G.mode === "pre" ? pre : G.mode === "post" ? post : [...pre, ...post];
+  const opos = {};
+  text(nodesG, xR, 16, "OUTCOME", { class: "tm", "font-size": 11, "letter-spacing": "0.08em" });
+  const span = H - top - 40;
+  shown.forEach((o, i) => { opos[o] = top + 10 + (shown.length === 1 ? span / 2 : (span * i) / (shown.length - 1)); });
+  if (G.mode === "both") { opos.converted_pro = top + 30; opos.converted_enterprise = top + 100; opos.expansion = H * 0.5; opos.contraction = H * 0.5 + 75; opos.cancellation = H * 0.5 + 150; }
+
+  const nodeEls = {}, edgeEls = [], maxLn = Math.log(3);
+  for (const o of shown) for (const b of F_ITEMS) {
+    const r = R[b + "|" + o]; if (!r || (!r.sig && !G.unsure)) continue;
+    const y1 = pos[b], y2 = opos[o];
+    const mag = Math.min(Math.abs(Math.log(r.rr)) / maxLn, 1);
+    const col = !r.sig ? "var(--unsure)" : r.rr > 1 ? "var(--pos)" : "var(--neg)";
+    const w = r.sig ? 1.5 + 7 * mag : 1.2;
+    const d = `M${xL + 8},${y1} C${xL + 200},${y1} ${xR - 200},${y2} ${xR - 9},${y2}`;
+    const p = el("path", { d, class: "edge", stroke: col, "stroke-width": w, opacity: r.rob ? 0.85 : r.sig ? 0.7 : 0.5,
+      "stroke-dasharray": r.rob ? "none" : r.sig ? "7 5" : "2 4", "stroke-linecap": "round" }, edgesG);
+    const hit = el("path", { d, fill: "none", stroke: "transparent", "stroke-width": Math.max(12, w + 8), tabindex: 0, "aria-label": `${nameOf(b)} to ${OUTCOMES[o].label}` }, edgesG);
+    bindHover(hit, (e) => { focusOn([b, o], [p]); showTip(e, (t) => {
+      tipLine(t, "k", nameOf(b) + " → " + OUTCOMES[o].label);
+      tipRatio(t, r, `(${fmt(r.lo)}–${fmt(r.hi)})`);
+      tipLine(t, "k", strength(r));
+      tipLine(t, "k", `${int(r.ee)} ${o.startsWith("converted") ? "purchases" : "events"} after the behaviour, ${int(r.ue)} without it`);
+    }); }, clear);
+    edgeEls.push({ p, b, o });
+  }
+  for (const b of F_ITEMS) {
+    const gN = el("g", { class: "node", tabindex: 0, "aria-label": nameOf(b) }, nodesG);
+    el("circle", { cx: xL, cy: pos[b], r: 6, fill: "var(--surface)", stroke: "var(--ink-2)", "stroke-width": 2 }, gN);
+    text(gN, xL - 14, pos[b] + 5, nameOf(b), { "text-anchor": "end", "font-size": 14 });
+    el("rect", { x: 10, y: pos[b] - 12, width: xL + 4, height: 24, fill: "transparent" }, gN);
+    nodeEls[b] = gN;
+    bindHover(gN, (e) => { focusOn([b], edgeEls.filter(x => x.b === b).map(x => x.p)); showTip(e, (t) => {
+      tipLine(t, "k", nameOf(b));
+      let any = false;
+      for (const o of ["converted", ...shown]) { const r = R[b + "|" + o]; if (!r) continue; any = true;
+        tipRatio(t, r, `${OUTCOMES[o].short} (${fmt(r.lo)}–${fmt(r.hi)})${r.rob ? "" : r.sig ? " ·95%" : " ·uncertain"}`); }
+      if (!any) tipLine(t, "k", "No data for these outcomes");
+      if (b === "any:custom_workflows") tipLine(t, "k", "Released 1 Nov 2024: no pre-purchase data");
+    }); }, clear);
+  }
+  const lc = DATA.lifecycle;
+  const counts = { converted_pro: int(DATA.summary.pro) + " buyers", converted_enterprise: int(DATA.summary.enterprise) + " buyers",
+    expansion: int(lc.seats_expanded) + " + " + int(lc.plan_upgraded) + " customers", contraction: int(lc.seats_contracted) + " + " + int(lc.plan_downgraded) + " customers",
+    cancellation: int(lc.subscription_cancelled) + " customers" };
+  if (G.mode === "both") {
+    text(nodesG, xR + 16, opos.converted_pro - 22, "Purchase", { class: "tm", "font-size": 12, "font-weight": 600 });
+    text(nodesG, xR + 16, opos.expansion - 22, "After purchase", { class: "tm", "font-size": 12, "font-weight": 600 });
+  }
+  for (const o of shown) {
+    const gN = el("g", { class: "node", tabindex: 0, "aria-label": OUTCOMES[o].label }, nodesG);
+    el("rect", { x: xR - 9, y: opos[o] - 9, width: 18, height: 18, rx: 4, fill: "var(--ink)" }, gN);
+    text(gN, xR + 16, opos[o] + 2, OUTCOMES[o].short, { "font-size": 15, "font-weight": 600 });
+    text(gN, xR + 16, opos[o] + 19, counts[o] + (OUTCOMES[o].sub ? " · " + OUTCOMES[o].sub : ""), { class: "tm", "font-size": 12 });
+    el("rect", { x: xR - 12, y: opos[o] - 14, width: 320, height: 38, fill: "transparent" }, gN);
+    nodeEls[o] = gN;
+    bindHover(gN, (e) => { focusOn([o], edgeEls.filter(x => x.o === o).map(x => x.p)); showTip(e, (t) => {
+      tipLine(t, "k", OUTCOMES[o].label + ": strongest links");
+      const rs = F_ITEMS.map(b => [b, R[b + "|" + o]]).filter(([, r]) => r && r.sig)
+        .sort((a, b2) => Math.abs(Math.log(b2[1].rr)) - Math.abs(Math.log(a[1].rr))).slice(0, 6);
+      if (!rs.length) tipLine(t, "k", "No link with a 95% interval excluding 1.00×");
+      for (const [b, r] of rs) tipRatio(t, r, nameOf(b));
+    }); }, clear);
+  }
+  function focusOn(keys, paths) {
+    layer.classList.add("dim");
+    for (const n of Object.values(nodeEls)) n.classList.remove("hot");
+    for (const x of edgeEls) x.p.classList.toggle("hot", paths.includes(x.p));
+    const linked = new Set(keys);
+    for (const x of edgeEls) if (paths.includes(x.p)) { linked.add(x.b); linked.add(x.o); }
+    for (const k of linked) nodeEls[k] && nodeEls[k].classList.add("hot");
+  }
+  function clear() { layer.classList.remove("dim"); hideTip(); }
+}
+for (const [id, mode] of [["g-both", "both"], ["g-pre", "pre"], ["g-post", "post"]]) {
+  $(id).addEventListener("click", () => {
+    G.mode = mode;
+    for (const k of ["g-both", "g-pre", "g-post"]) $(k).setAttribute("aria-pressed", String(k === id));
+    drawGraph();
+  });
+}
+$("g-unsure").addEventListener("change", (e) => { G.unsure = e.target.checked; drawGraph(); });
+drawGraph();
+
+/* ---------- journey graph ---------- */
+(function journey() {
+  const svg = $("journey"), J = DATA.journey;
+  const W = 960, H = 470;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  const feats = ["real_time_collab", "ai_insights", "advanced_export", "api_access", "team_analytics", "custom_workflows"];
+  const node = Object.fromEntries(J.nodes.map(n => [n.id, n]));
+  const xS = 120, xF = 420, xO = 800;
+  const P = { Signup: [xS, H / 2], Converted: [xO, 150], "Not converted": [xO, 330] };
+  feats.forEach((f, i) => { P[f] = [xF, 50 + i * 74]; });
+  const maxUsers = Math.max(...feats.map(f => node[f].users || 1));
+  const rad = (f) => 7 + 15 * Math.sqrt((node[f].users || 0) / maxUsers);
+  const outBy = {};
+  for (const e of J.edges) (outBy[e.source] ||= []).push(e);
+  const maxCount = Math.max(...J.edges.filter(e => e.source !== e.target).map(e => e.count));
+  const wOf = (c) => 1 + 9 * Math.sqrt(c / maxCount);
+  const eg = el("g", {}, svg), ng = el("g", {}, svg), paths = [];
+  function curve(a, b) {
+    const [x1, y1] = P[a], [x2, y2] = P[b];
+    if (feats.includes(a) && feats.includes(b)) {
+      const bulge = 40 + Math.abs(y2 - y1) * 0.55;
+      return `M${x1 + rad(a)},${y1} C${x1 + bulge},${y1} ${x2 + bulge},${y2} ${x2 + rad(b) + 3},${y2}`;
+    }
+    const sx = x1 + (feats.includes(a) ? rad(a) : 10), ex = x2 - (feats.includes(b) ? rad(b) : 10), mx = (sx + ex) / 2;
+    return `M${sx},${y1} C${mx},${y1} ${mx},${y2} ${ex},${y2}`;
+  }
+  for (const e of J.edges) {
+    if (e.source === e.target) continue;
+    const ff = feats.includes(e.source) && feats.includes(e.target);
+    const col = e.target === "Converted" ? "var(--pos)" : e.target === "Not converted" ? "var(--unsure)" : "var(--ink-2)";
+    const base = ff ? (e.share >= 0.1 ? 0.45 : 0) : 0.55;
+    const p = el("path", { d: curve(e.source, e.target), class: "edge", stroke: col, "stroke-width": wOf(e.count), opacity: base, "stroke-linecap": "round" }, eg);
+    p.dataset.base = base;
+    paths.push({ p, e });
+  }
+  for (const id of [...feats, "Signup", "Converted", "Not converted"]) {
+    const [x, y] = P[id], n = node[id];
+    const g = el("g", { class: "node", tabindex: 0, "aria-label": id }, ng);
+    if (feats.includes(id)) {
+      el("circle", { cx: x, cy: y, r: rad(id), fill: "var(--surface)", stroke: "var(--ink)", "stroke-width": 2 }, g);
+      text(g, x - rad(id) - 10, y - 1, id, { "text-anchor": "end", "font-size": 14, "font-weight": 600 });
+      text(g, x - rad(id) - 10, y + 16, `${pct(n.p_convert, 0)} buy · removal −${pct(n.removal_effect, 0)}`, { "text-anchor": "end", class: "tm", "font-size": 12 });
+    } else {
+      el("rect", { x: x - 9, y: y - 9, width: 18, height: 18, rx: 4, fill: id === "Converted" ? "var(--pos)" : id === "Signup" ? "var(--ink)" : "var(--unsure)" }, g);
+      const right = id !== "Signup";
+      text(g, right ? x + 16 : x - 16, y + 1, id, { "text-anchor": right ? "start" : "end", "font-size": 15, "font-weight": 600 });
+      const sub = id === "Signup" ? int(DATA.summary.users) + " users" : id === "Converted" ? pct(J.base) + " of users" : pct(1 - J.base) + " of users";
+      text(g, right ? x + 16 : x - 16, y + 19, sub, { "text-anchor": right ? "start" : "end", class: "tm", "font-size": 12 });
+    }
+    el("circle", { cx: x, cy: y, r: 26, fill: "transparent" }, g);
+    bindHover(g, (ev) => {
+      for (const { p, e } of paths) p.setAttribute("opacity", e.source === id || e.target === id ? 0.9 : 0.05);
+      showTip(ev, (t) => {
+        const fwd = feats.includes(id) || id === "Signup";
+        tipLine(t, "k", id === "Signup" ? "First feature tried" : fwd ? id + ": next step" : id + ": last step before");
+        const list = fwd ? (outBy[id] || []) : J.edges.filter(e => e.target === id);
+        const tot = list.reduce((s, e) => s + e.count, 0);
+        for (const e of [...list].sort((a, b) => b.count - a.count).slice(0, 8)) {
+          const row = document.createElement("div"); row.className = "row";
+          const v = document.createElement("span"); v.className = "v"; v.textContent = pct(e.count / tot, 0);
+          const k = document.createElement("span"); k.className = "k";
+          k.textContent = (fwd ? (e.target === id ? "repeat " + id : e.target) : e.source) + " · " + int(e.count);
+          row.append(v, k); t.appendChild(row);
+        }
+        if (feats.includes(id)) tipLine(t, "k", `${int(n.users)} users reached it, ${int(n.converted_users)} of them bought`);
+      });
+    }, () => { for (const { p } of paths) p.setAttribute("opacity", p.dataset.base); hideTip(); });
+  }
+  const tb = $("jtable"), head = tb.insertRow();
+  for (const [h, c] of [["Feature", 0], ["Users", 1], ["P(buy)", 1], ["Removal", 1]]) {
+    const th = document.createElement("th"); th.textContent = h; if (c) th.className = "n"; head.appendChild(th);
+  }
+  for (const f of [...feats].sort((a, b) => node[b].removal_effect - node[a].removal_effect)) {
+    const n = node[f], tr = tb.insertRow();
+    for (const [v, c] of [[f, 0], [int(n.users), 1], [pct(n.p_convert), 1], ["−" + pct(n.removal_effect, 0), 1]]) {
+      const td = tr.insertCell(); td.textContent = v; if (c) td.className = "n";
+    }
+  }
+})();
+
+fit();
+go((parseInt(location.hash.slice(1), 10) || 1) - 1);
+</script>
+</body>
+</html>

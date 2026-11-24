@@ -1,0 +1,676 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What moves free users to buy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Deck: fixed 1280x720 stage scaled to the window; one slide visible; print = one slide per page. */
+:root {
+  --bg: #f5f6f7; --surface: #ffffff; --ink: #14171b; --ink-2: #4b5159; --muted: #80868e;
+  --line: #e1e4e8; --axis: #c3c8cf; --wash: #eef1f4; --night: #14181d; --night-2: #a9b1ba;
+  --pos: #2a78d6; --neg: #e34948; --unsure: #9ba1a9; --accent: #19607a;
+  --font-display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Inter", "Segoe UI", system-ui, sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: #0b0d10; overflow: hidden; }
+body { font-family: var(--font-body); color: var(--ink); font-size: 18px; line-height: 1.5; }
+.stage { position: absolute; left: 50%; top: 50%; width: 1280px; height: 720px; transform-origin: center center; }
+.slide { position: absolute; inset: 0; background: var(--bg); padding: 44px 64px 40px; display: none; flex-direction: column; gap: 22px; overflow: hidden; }
+.slide.on { display: flex; }
+.slide.dark { background: var(--night); color: #f2f4f6; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 600; line-height: 1.12; margin: 0; text-wrap: balance; }
+h1 { font-size: 64px; letter-spacing: -0.015em; }
+h2 { font-size: 34px; letter-spacing: -0.01em; max-width: 30ch; }
+h3 { font-size: 18px; }
+p { margin: 0; }
+.top { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; }
+.top > div { display: grid; gap: 10px; min-width: 0; }
+.eyebrow { font-size: 13px; text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted); font-weight: 500; }
+.dark .eyebrow { color: var(--night-2); }
+.body { flex: 1; min-height: 0; display: flex; gap: 40px; }
+.body > * { min-width: 0; }
+.foot { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
+.dark .foot { color: var(--night-2); }
+.pg { visibility: hidden; }
+.note { font-size: 16px; color: var(--ink-2); }
+.small { font-size: 14px; color: var(--ink-2); }
+.mono, .num { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+code { font-family: var(--font-data); font-size: 0.88em; background: var(--wash); padding: 1px 6px; border-radius: 4px; }
+.up { color: var(--pos); } .down { color: var(--neg); }
+
+/* title slide */
+.title-body { flex: 1; display: grid; align-content: center; gap: 26px; }
+.title-body .sub { font-size: 22px; color: var(--night-2); max-width: 46ch; }
+.facts { display: flex; gap: 56px; padding-top: 26px; border-top: 1px solid #2c333b; }
+.fact { display: grid; gap: 4px; }
+.fact b { font-family: var(--font-data); font-weight: 500; font-size: 30px; }
+.fact span { font-size: 14px; color: var(--night-2); }
+
+/* big number + text */
+.big { font-family: var(--font-data); font-size: 120px; line-height: 1; font-weight: 500; color: var(--ink); letter-spacing: -0.03em; }
+.stack { display: grid; gap: 16px; align-content: start; }
+
+/* lists of findings */
+.finds { display: grid; gap: 0; align-content: start; }
+.find { display: grid; grid-template-columns: 1fr auto; gap: 2px 20px; padding: 12px 0; border-top: 1px solid var(--line); }
+.find .what { font-weight: 600; font-size: 18px; }
+.find .ratio { font-family: var(--font-data); font-size: 20px; font-weight: 500; text-align: right; white-space: nowrap; }
+.find .why { grid-column: 1 / -1; font-size: 15px; color: var(--ink-2); }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; display: flex; flex-direction: column; gap: 12px; min-height: 0; }
+.viz { flex: 1; min-height: 0; display: flex; }
+.viz svg { width: 100%; height: 100%; display: block; font-family: var(--font-body); }
+svg text { fill: var(--ink); }
+svg .t2 { fill: var(--ink-2); } svg .tm { fill: var(--muted); }
+#journey text { paint-order: stroke; stroke: var(--surface); stroke-width: 5px; stroke-linejoin: round; }
+
+.controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; }
+.seg { display: inline-flex; border: 1px solid var(--axis); border-radius: 8px; overflow: hidden; background: var(--surface); }
+.seg button { font: inherit; font-size: 13px; padding: 6px 12px; border: 0; background: transparent; color: var(--ink-2); cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--axis); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
+.chk { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-2); cursor: pointer; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 7px; }
+button:focus-visible, input:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.edge { fill: none; transition: opacity 120ms; }
+.dim .edge:not(.hot) { opacity: 0.06 !important; }
+.dim .node:not(.hot) { opacity: 0.35; }
+
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { font-weight: 600; color: var(--ink-2); font-size: 12.5px; white-space: normal; vertical-align: bottom; }
+td.n, th.n { text-align: right; font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+tr.flag td { background: #fff4f3; }
+
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 18px; counter-reset: s; max-width: 980px; }
+.steps li { display: grid; grid-template-columns: 44px 1fr; gap: 4px 12px; font-size: 18px; color: var(--ink-2); }
+.steps li::before { counter-increment: s; content: counter(s); font-family: var(--font-data); font-size: 22px; color: var(--accent); font-weight: 500; }
+.steps b { color: var(--ink); }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 26px 48px; align-content: start; }
+.grid2 > div { display: grid; gap: 6px; font-size: 15px; color: var(--ink-2); align-content: start; }
+
+#tip { position: fixed; z-index: 30; pointer-events: none; background: var(--surface); color: var(--ink); border: 1px solid var(--axis);
+  border-radius: 8px; padding: 10px 12px; font-size: 13px; line-height: 1.45; box-shadow: 0 6px 24px rgba(0,0,0,0.18); max-width: 320px; font-family: var(--font-body); }
+#tip .v { font-family: var(--font-data); font-weight: 500; font-size: 15px; }
+#tip .k { color: var(--ink-2); }
+#tip .row { display: flex; gap: 8px; align-items: baseline; }
+#tip .key { width: 12px; height: 3px; border-radius: 2px; flex: none; transform: translateY(-3px); }
+[hidden] { display: none !important; }
+
+.nav { position: fixed; right: 16px; bottom: 14px; z-index: 20; display: flex; align-items: center; gap: 8px; font: 13px var(--font-data); color: #c9cfd6; }
+.nav button { font: inherit; width: 32px; height: 32px; border-radius: 6px; border: 1px solid #39414a; background: #1a1f25; color: #e8ebee; cursor: pointer; }
+.bar { position: fixed; left: 0; bottom: 0; height: 3px; background: var(--accent); z-index: 20; transition: width 200ms; }
+@media (prefers-reduced-motion: reduce) { .edge, .bar { transition: none; } }
+@media print {
+  @page { size: 1280px 720px; margin: 0; }
+  html, body { height: auto; overflow: visible; background: none; }
+  .stage { position: static; transform: none !important; width: 1280px; height: auto; }
+  .slide { position: relative; display: flex !important; width: 1280px; height: 720px; break-after: page; }
+  .nav, .bar, #tip { display: none !important; }
+  .pg { visibility: visible; }
+}
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+
+<!-- 1 -->
+<section class="slide dark" data-title="Title">
+  <div class="eyebrow">Growth analytics · 2024 synthetic snapshot</div>
+  <div class="title-body">
+    <h1>What moves free users to buy</h1>
+    <p class="sub">A time-aware graph analysis of feature usage, conversions and subscription events. Only what users did before paying counts.</p>
+    <div class="facts" id="facts"></div>
+  </div>
+  <div class="foot"><span>Source: data/raw · DuckDB + igraph</span><span>Use ← → to move between slides</span></div>
+</section>
+
+<!-- 2 -->
+<section class="slide" data-title="Timing trap">
+  <div class="top"><div><div class="eyebrow">Why the method matters</div>
+    <h2>Most of what buyers do in the product happens after they pay</h2></div></div>
+  <div class="body">
+    <div class="stack" style="flex:0 0 330px">
+      <div class="big" id="after-pct"></div>
+      <p class="note">of buyers' usage events come after the purchase date. Median time to buy is 14 days, but median usage is on day 54 after signup.</p>
+      <p class="note">Count every event and each feature looks like a reason to buy. Count only usage while free, and the late launches drop out.</p>
+    </div>
+    <div class="panel" style="flex:1"><table id="ntable"></table>
+      <p class="small">"While free" = users who touched the feature before buying, or at any time if they never bought. The last column is the adjusted rate ratio used in the rest of this deck.</p></div>
+  </div>
+  <div class="foot"><span>Overall purchase rate: 30.5% of 5,000 signups</span><span class="pg"></span></div>
+</section>
+
+<!-- 3 -->
+<section class="slide" data-title="Raises buying">
+  <div class="top"><div><div class="eyebrow">Before purchase · what helps</div>
+    <h2>Real-time collaboration is the biggest lever. Early hands-on use helps too.</h2></div></div>
+  <div class="body">
+    <div class="finds" style="flex:0 0 470px">
+      <div class="find"><span class="what">Trying real_time_collab</span><span class="ratio up">1.98×</span><span class="why">2.14× for Enterprise and 1.89× for Pro. 62% of conversions in the journey graph pass through it.</span></div>
+      <div class="find"><span class="what">Hands-on use, not just views</span><span class="ratio up">1.62×</span><span class="why">The first <em>use</em> event of any feature. Viewing alone makes no difference.</span></div>
+      <div class="find"><span class="what">Trying ai_insights</span><span class="ratio up">1.37×</span><span class="why">A Pro signal: 1.55× for Pro, no clear effect on Enterprise.</span></div>
+      <div class="find"><span class="what">Back on 3+ separate days</span><span class="ratio up">1.30×</span><span class="why">A few return visits help.</span></div>
+      <div class="find"><span class="what">Sharing from any feature</span><span class="ratio up">1.26×</span><span class="why">1.35× for Pro.</span></div>
+    </div>
+    <div class="panel" style="flex:1"><div class="eyebrow">Any purchase · rate ratio, 95% interval</div><div class="viz"><svg id="mini-pos" role="img" aria-label="Rate ratios above 1 for the positive behaviours"></svg></div></div>
+  </div>
+  <div class="foot"><span>Rate ratio = purchases per free day after the behaviour vs. similar users on the same day since signup who have not done it yet</span><span class="pg"></span></div>
+</section>
+
+<!-- 4 -->
+<section class="slide" data-title="Lowers buying">
+  <div class="top"><div><div class="eyebrow">Before purchase · what hurts</div>
+    <h2>Users who never start, or settle into free use, rarely buy</h2></div></div>
+  <div class="body">
+    <div class="finds" style="flex:0 0 470px">
+      <div class="find"><span class="what">No activity yet</span><span class="ratio down">0.43×</span><span class="why">The largest group: 1,628 of the 4,293 users still free on day 14 had done nothing.</span></div>
+      <div class="find"><span class="what">Active on 7+ days</span><span class="ratio down">0.32×</span><span class="why">Buyers decide early. Free users who keep coming back for weeks seldom upgrade.</span></div>
+      <div class="find"><span class="what">10+ events</span><span class="ratio down">0.19×</span><span class="why">Only 4 purchases followed a user's 10th free event.</span></div>
+      <p class="small" style="padding-top:12px;border-top:1px solid var(--line)"><b>No clear effect:</b> api_access, team_analytics, 2+ or 3+ features, and 14+ days inactive. custom_workflows launched a day before the last purchase, so there is no pre-purchase data.</p>
+    </div>
+    <div class="panel" style="flex:1"><div class="eyebrow">Cross-check · users still free on day 14</div>
+      <p class="small">Share who bought in days 14–95, by events in their first two weeks. Light activity is best.</p>
+      <div class="viz"><svg id="landmark" role="img" aria-label="Purchase rate by early events: 0 events 16.8%, 1-2 events 21.9%, 3-5 events 18.8%, 6+ events 16.9%"></svg></div></div>
+  </div>
+  <div class="foot"><span>Activity level: none 0.43× · 3+ days 1.30× · 7+ days 0.32×</span><span class="pg"></span></div>
+</section>
+
+<!-- 5 -->
+<section class="slide" data-title="Dependency graph">
+  <div class="top"><div><div class="eyebrow">The graph</div>
+    <h2>How each free-period behaviour links to each outcome</h2></div>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="Which outcomes to show">
+        <button type="button" id="g-both" aria-pressed="true">All</button>
+        <button type="button" id="g-pre" aria-pressed="false">Purchase</button>
+        <button type="button" id="g-post" aria-pressed="false">After purchase</button>
+      </div>
+      <label class="chk"><input type="checkbox" id="g-unsure"> Uncertain links</label>
+    </div></div>
+  <div class="panel" style="flex:1">
+    <div class="legend">
+      <span><svg width="28" height="8" aria-hidden="true"><line x1="0" y1="4" x2="28" y2="4" style="stroke:var(--pos)" stroke-width="4"/></svg>Raises</span>
+      <span><svg width="28" height="8" aria-hidden="true"><line x1="0" y1="4" x2="28" y2="4" style="stroke:var(--neg)" stroke-width="4"/></svg>Lowers</span>
+      <span><svg width="28" height="8" aria-hidden="true"><line x1="0" y1="4" x2="28" y2="4" style="stroke:var(--ink-2)" stroke-width="3"/></svg>Solid: passes the strict test</span>
+      <span><svg width="28" height="8" aria-hidden="true"><line x1="0" y1="4" x2="28" y2="4" style="stroke:var(--ink-2)" stroke-width="3" stroke-dasharray="6 4"/></svg>Dashed: 95% interval only</span>
+      <span><svg width="28" height="8" aria-hidden="true"><line x1="0" y1="4" x2="28" y2="4" style="stroke:var(--unsure)" stroke-width="1.5" stroke-dasharray="2 3"/></svg>Dotted: uncertain</span>
+      <span>Thickness = size of effect · hover for numbers</span>
+    </div>
+    <div class="viz"><svg id="graph" role="img" aria-label="Dependency graph linking free-period behaviours to purchase and after-purchase outcomes"></svg></div>
+  </div>
+</section>
+
+<!-- 6 -->
+<section class="slide" data-title="Rate ratios">
+  <div class="top"><div><div class="eyebrow">All results</div>
+    <h2>Rate ratios by outcome</h2></div>
+    <div class="controls"><div class="seg" role="group" aria-label="Outcome" id="f-seg"></div></div></div>
+  <div class="panel" style="flex:1">
+    <div class="legend">
+      <span><svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="5" style="fill:var(--ink-2)"/></svg>Filled: passes the strict test</span>
+      <span><svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="4.2" style="fill:var(--surface);stroke:var(--ink-2)" stroke-width="1.6"/></svg>Ring: 95% interval only</span>
+      <span><svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="4" style="fill:var(--unsure)"/></svg>Gray: interval includes 1.00×</span>
+      <span>Log scale</span>
+    </div>
+    <div class="viz"><svg id="forest" role="img" aria-label="Rate ratio for each behaviour with 95% interval for the selected outcome"></svg></div>
+  </div>
+</section>
+
+<!-- 7 -->
+<section class="slide" data-title="Journey graph">
+  <div class="top"><div><div class="eyebrow">The journey as a Markov chain (igraph)</div>
+    <h2>Most buying journeys pass through real_time_collab</h2></div></div>
+  <div class="body">
+    <div class="panel" style="flex:1"><div class="viz"><svg id="journey" role="img" aria-label="Journey graph from Signup through features to Converted or Not converted"></svg></div>
+      <p class="small">Node size = users who reached the feature while free. Curves on the right = next feature (10%+ of moves). Hover over a node for all its steps.</p></div>
+    <div class="stack" style="flex:0 0 400px">
+      <table id="jtable"></table>
+      <p class="small"><b>Removal effect</b> = share of purchases lost if the feature is cut from every journey. It favours popular features, so read it together with the rate ratios. <b>P(buy)</b> = chance of eventually buying from that point. The baseline is 30.5%.</p>
+    </div>
+  </div>
+  <div class="foot"><span>Signup → features → Converted | Not converted · 5,000 journeys, 55 weighted edges</span><span class="pg"></span></div>
+</section>
+
+<!-- 8 -->
+<section class="slide" data-title="After purchase">
+  <div class="top"><div><div class="eyebrow">After purchase · leads, not proof</div>
+    <h2>Customers who adopt more features cancel less, and API users expand</h2></div></div>
+  <div class="body">
+    <div class="finds" style="flex:0 0 470px">
+      <div class="find"><span class="what">Feature adoption → cancellation</span><span class="ratio down">0.59–0.77×</span><span class="why">real_time_collab, advanced_export, api_access and 2+ features all go with fewer cancellations.</span></div>
+      <div class="find"><span class="what">api_access → expansion</span><span class="ratio up">1.39×</span><span class="why">More seat expansions and plan upgrades.</span></div>
+      <div class="find"><span class="what">Sharing real_time_collab → contraction</span><span class="ratio up">1.37×</span><span class="why">Probably noise. Check against the next snapshot.</span></div>
+      <p class="small" style="padding-top:12px;border-top:1px solid var(--line)">None of these passes the strict test for ~30 behaviours. The consistent direction for cancellation matches how the data was generated (ADR 0004: each adopted feature lowers churn).</p>
+    </div>
+    <div class="panel" style="flex:1"><div class="eyebrow">Cancellation · rate ratio, 95% interval</div><div class="viz"><svg id="mini-cancel" role="img" aria-label="Rate ratios below 1 for cancellation after feature adoption"></svg></div></div>
+  </div>
+  <div class="foot"><span>Compared within days-since-purchase band × plan</span><span class="pg"></span></div>
+</section>
+
+<!-- 9 -->
+<section class="slide" data-title="What to do">
+  <div class="top"><div><div class="eyebrow">Recommendations</div><h2>What to do with this</h2></div></div>
+  <ol class="steps">
+    <li><span><b>Put real_time_collab in the first session.</b> Prompt a co-edit or a teammate invite on day one. It is the biggest lever for both plans.</span></li>
+    <li><span><b>Aim activation at the first week.</b> Inactive users are the largest group. One or two hands-on actions lift day-14 conversion from 16.8% to 21.9%.</span></li>
+    <li><span><b>Ask for the purchase while interest is high.</b> A user on their 7th active free day who has not bought is settling in. That is when to show a plan prompt, introduce paid limits or have sales reach out.</span></li>
+    <li><span><b>Lead Pro messaging with ai_insights,</b> and Enterprise messaging with real_time_collab.</span></li>
+    <li><span><b>After the purchase, push a second feature and the API.</b> Fewer cancellations and more expansion. Test before treating these as effects.</span></li>
+  </ol>
+  <div class="foot" style="margin-top:auto"><span></span><span class="pg"></span></div>
+</section>
+
+<!-- 10 -->
+<section class="slide" data-title="Method">
+  <div class="top"><div><div class="eyebrow">Method and limits</div><h2>How the numbers were made</h2></div></div>
+  <div class="grid2">
+    <div><h3>Data</h3><p>feature_usage_events (48,666), conversions (1,526), subscription_events (2,651), plus signup and release dates for timing. Calendar year 2024.</p></div>
+    <div><h3>Time-aware comparison</h3><p>Free days run from signup to purchase, up to 95 days. A behaviour counts from the day after it first happens. Rates are compared within days-since-signup band × signup month and pooled as a Mantel–Haenszel rate ratio with a 95% interval. A feature is only compared on days after its release.</p></div>
+    <div><h3>Strict test</h3><p>About 30 behaviours are tested per outcome. "Strict" means the interval still excludes 1.00× at z = 3.14 (Bonferroni for 30 tests).</p></div>
+    <div><h3>Journey graph</h3><p>Event sequences are built into a weighted directed graph with <code>graph.build.build_graph</code> and solved as an absorbing Markov chain. The removal effect is the drop in P(buy) from Signup when a feature node is cut.</p></div>
+    <div><h3>Limits</h3><p>The data is synthetic with engineered signals, so absolute rates are invented. These are associations, not proof of cause. The link between long free use and not buying may partly reflect how the generator spreads events.</p></div>
+    <div><h3>Reproduce</h3><p><code>python -m graph.usage_conversion --deck docs/reports/usage-to-purchase-deck.html</code> rebuilds this deck from <code>data/raw</code> in about 2 seconds.</p></div>
+  </div>
+  <div class="foot" style="margin-top:auto"><span></span><span class="pg"></span></div>
+</section>
+
+</div>
+<div class="nav" aria-label="Slide navigation"><button type="button" id="prev" aria-label="Previous slide">←</button><span id="count"></span><button type="button" id="next" aria-label="Next slide">→</button></div>
+<div class="bar" id="bar"></div>
+<div id="tip" hidden></div>
+
+<script>
+const DATA = /*DATA*/null;
+const SVGNS = "http://www.w3.org/2000/svg";
+const $ = (id) => document.getElementById(id);
+const fmt = (x, d = 2) => x == null ? "–" : x.toFixed(d);
+const pct = (x, d = 1) => (100 * x).toFixed(d) + "%";
+const int = (x) => x == null ? "–" : x.toLocaleString("en-US");
+
+function el(tag, attrs = {}, parent) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (typeof v === "string" && v.includes("var(")) e.style.setProperty(k, v);
+    else e.setAttribute(k, v);
+  }
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function text(parent, x, y, str, attrs = {}) { const t = el("text", { x, y, ...attrs }, parent); t.textContent = str; return t; }
+
+/* ---------- deck navigation ---------- */
+const slides = [...document.querySelectorAll(".slide")];
+let cur = 0;
+function fit() {
+  const s = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+  $("stage").style.transform = `translate(-50%, -50%) scale(${s})`;
+}
+function go(i) {
+  cur = Math.max(0, Math.min(slides.length - 1, i));
+  slides.forEach((s, k) => s.classList.toggle("on", k === cur));
+  $("count").textContent = `${cur + 1} / ${slides.length}`;
+  $("bar").style.width = `${(100 * (cur + 1)) / slides.length}%`;
+  if (location.hash !== "#" + (cur + 1)) history.replaceState(null, "", "#" + (cur + 1));
+  hideTip();
+}
+document.querySelectorAll(".pg").forEach((p) => { const i = slides.indexOf(p.closest(".slide")); p.textContent = `${i + 1} / ${slides.length}`; });
+document.addEventListener("keydown", (e) => {
+  if (e.target.tagName === "INPUT") return;
+  if (["ArrowRight", "PageDown", " "].includes(e.key)) { e.preventDefault(); go(cur + 1); }
+  else if (["ArrowLeft", "PageUp"].includes(e.key)) { e.preventDefault(); go(cur - 1); }
+  else if (e.key === "Home") go(0);
+  else if (e.key === "End") go(slides.length - 1);
+});
+$("prev").addEventListener("click", () => go(cur - 1));
+$("next").addEventListener("click", () => go(cur + 1));
+window.addEventListener("resize", fit);
+window.addEventListener("hashchange", () => go((parseInt(location.hash.slice(1), 10) || 1) - 1));
+
+/* ---------- lookup ---------- */
+const R = {};
+for (const r of DATA.rows) R[r.b + "|" + r.o] = r;
+const OUTCOMES = {
+  converted: { label: "Any purchase", short: "Purchase" },
+  converted_pro: { label: "Pro", short: "Pro" },
+  converted_enterprise: { label: "Enterprise", short: "Enterprise" },
+  expansion: { label: "Expansion", short: "Expansion", sub: "seats added, upgrades" },
+  contraction: { label: "Contraction", short: "Contraction", sub: "seats cut, downgrades" },
+  cancellation: { label: "Cancellation", short: "Cancellation" },
+};
+const GROUPS = [
+  { name: "Activity", items: ["never_active", "view_only", "active_3d", "active_7d", "events_10", "dormant_14"] },
+  { name: "Features tried", items: ["any:real_time_collab", "any:ai_insights", "any:advanced_export", "any:api_access", "any:team_analytics", "any:custom_workflows"] },
+  { name: "Depth", items: ["use_any", "share_any", "breadth_2", "breadth_3"] },
+];
+const NAMES = {
+  never_active: "No activity yet", view_only: "Viewed, never used", active_3d: "Active on 3+ days",
+  active_7d: "Active on 7+ days", events_10: "10+ events", dormant_14: "Inactive 14+ days",
+  use_any: "Hands-on use (not just views)", share_any: "Shared from any feature",
+  breadth_2: "Used 2+ features", breadth_3: "Used 3+ features",
+};
+const nameOf = (b) => NAMES[b] || (b.startsWith("any:") ? "Tried " + b.slice(4) : (DATA.labels[b] || b));
+const strength = (r) => r.rob ? "Passes the strict test" : r.sig ? "95% interval only" : "Uncertain: interval includes 1.00×";
+
+/* ---------- tooltip ---------- */
+const tip = $("tip");
+function showTip(evt, build) {
+  tip.replaceChildren(); build(tip); tip.hidden = false;
+  let x, y;
+  if (evt && evt.clientX != null && evt.type !== "focus") { x = evt.clientX; y = evt.clientY; }
+  else { const b = evt.target.getBoundingClientRect(); x = b.right; y = b.top; }
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  tip.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, x + 14)) + "px";
+  tip.style.top = Math.max(8, Math.min(window.innerHeight - h - 8, y + 14)) + "px";
+}
+function hideTip() { tip.hidden = true; }
+function tipLine(p, cls, s) { const d = document.createElement("div"); d.className = cls; d.textContent = s; p.appendChild(d); }
+function tipRatio(p, r, title) {
+  const row = document.createElement("div"); row.className = "row";
+  const key = document.createElement("span"); key.className = "key";
+  key.style.background = !r.sig ? "var(--unsure)" : r.rr > 1 ? "var(--pos)" : "var(--neg)";
+  const v = document.createElement("span"); v.className = "v"; v.textContent = fmt(r.rr) + "×";
+  const k = document.createElement("span"); k.className = "k"; k.textContent = title;
+  row.append(key, v, k); p.appendChild(row);
+}
+function bindHover(node, on, off = hideTip) {
+  node.addEventListener("pointermove", on); node.addEventListener("focus", on);
+  node.addEventListener("pointerleave", off); node.addEventListener("blur", off);
+}
+
+/* ---------- title + timing slides ---------- */
+(function facts() {
+  const s = DATA.summary;
+  for (const [b, t] of [[int(s.users), "free signups"], [int(s.converted), `bought (${pct(s.converted / s.users)})`],
+    [int(s.pro) + " / " + int(s.enterprise), "Pro / Enterprise"], [int(s.events), "usage events, 6 features"]]) {
+    const d = document.createElement("div"); d.className = "fact";
+    const bb = document.createElement("b"); bb.textContent = b;
+    const sp = document.createElement("span"); sp.textContent = t;
+    d.append(bb, sp); $("facts").appendChild(d);
+  }
+  $("after-pct").textContent = pct(s.converter_events_after_purchase / s.converter_events, 0);
+})();
+(function naive() {
+  const tb = $("ntable"), head = tb.insertRow();
+  for (const [h, n] of [["Feature", 0], ["Bought, counting all usage", 1], ["Bought, counting usage while free", 1], ["Rate ratio, time-aware", 1]]) {
+    const th = document.createElement("th"); th.textContent = h; if (n) th.className = "n"; head.appendChild(th);
+  }
+  for (const x of [...DATA.naive].sort((a, b) => b.ever_used_conv_rate - a.ever_used_conv_rate)) {
+    const r = R["any:" + x.feature + "|converted"], tr = tb.insertRow();
+    if (x.pre_purchase_conv_rate < 0.15) tr.className = "flag";
+    for (const [v, c] of [[x.feature, 0], [pct(x.ever_used_conv_rate), 1], [pct(x.pre_purchase_conv_rate), 1],
+      [r ? fmt(r.rr) + "×" + (r.sig ? "" : " (unclear)") : "no data", 1]]) {
+      const td = tr.insertCell(); td.textContent = v; if (c) td.className = "n";
+    }
+  }
+})();
+
+/* ---------- forest (full and mini) ---------- */
+function forest(svg, outcome, items, { W = 960, rowH = 28, labelW = 230, sort = true, valueCol = true, lo = 0.05, hi = 4, ticks = [0.05, 0.1, 0.25, 0.5, 1, 2, 4] } = {}) {
+  svg.replaceChildren();
+  const x0 = labelW + 20, x1 = valueCol ? W - 170 : W - 20, top = 30;
+  const sx = (v) => x0 + (Math.log(Math.min(hi, Math.max(lo, v))) - Math.log(lo)) / (Math.log(hi) - Math.log(lo)) * (x1 - x0);
+  let rows = items.map(b => ({ b, r: R[b + "|" + outcome] }));
+  if (sort) rows.sort((a, c) => (c.r ? c.r.rr : -1) - (a.r ? a.r.rr : -1));
+  const H = top + rows.length * rowH + 30;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  for (const t of ticks) {
+    el("line", { x1: sx(t), x2: sx(t), y1: top - 8, y2: H - 26, stroke: t === 1 ? "var(--axis)" : "var(--line)", "stroke-width": t === 1 ? 1.5 : 1 }, svg);
+    text(svg, sx(t), H - 8, t + "×", { "text-anchor": "middle", class: "tm", "font-size": 12, "font-family": "var(--font-data)" });
+  }
+  text(svg, sx(1) - 8, top - 14, "← lowers", { "text-anchor": "end", class: "tm", "font-size": 12 });
+  text(svg, sx(1) + 8, top - 14, "raises →", { class: "tm", "font-size": 12 });
+  rows.forEach(({ b, r }, i) => {
+    const y = top + i * rowH + rowH / 2;
+    const g = el("g", { tabindex: 0, "aria-label": nameOf(b) + (r ? `: ${fmt(r.rr)} times` : ": no data") }, svg);
+    el("rect", { x: 0, y: y - rowH / 2, width: W, height: rowH, fill: "transparent" }, g);
+    text(g, labelW, y + 5, nameOf(b), { "text-anchor": "end", "font-size": 14 });
+    if (!r) { text(g, x0 + 4, y + 5, "no data for this outcome", { class: "tm", "font-size": 13 }); return; }
+    const col = !r.sig ? "var(--unsure)" : r.rr > 1 ? "var(--pos)" : "var(--neg)";
+    el("line", { x1: sx(r.lo), x2: sx(r.hi), y1: y, y2: y, stroke: col, "stroke-width": 2.2, "stroke-linecap": "round" }, g);
+    if (r.lo < lo) el("path", { d: `M${sx(lo) + 6},${y - 4} L${sx(lo)},${y} L${sx(lo) + 6},${y + 4}`, fill: "none", stroke: col, "stroke-width": 2 }, g);
+    if (r.rob || !r.sig) el("circle", { cx: sx(r.rr), cy: y, r: 6, fill: col, stroke: "var(--surface)", "stroke-width": 2 }, g);
+    else el("circle", { cx: sx(r.rr), cy: y, r: 5, fill: "var(--surface)", stroke: col, "stroke-width": 2.2 }, g);
+    if (valueCol) text(g, x1 + 18, y + 5, `${fmt(r.rr)}×  (${fmt(r.lo)}–${fmt(r.hi)})`, { class: "t2", "font-size": 13, "font-family": "var(--font-data)" });
+    bindHover(g, (e) => showTip(e, (t) => {
+      tipLine(t, "k", nameOf(b) + " → " + OUTCOMES[outcome].label);
+      tipRatio(t, r, `(${fmt(r.lo)}–${fmt(r.hi)})`);
+      tipLine(t, "k", strength(r));
+      tipLine(t, "k", `${int(r.ee)} outcomes after the behaviour, ${int(r.ue)} without it`);
+      if (r.n) tipLine(t, "k", `${int(r.n)} users did it while at risk`);
+    }));
+  });
+}
+forest($("mini-pos"), "converted", ["any:real_time_collab", "use_any", "any:ai_insights", "active_3d", "share_any", "any:advanced_export"], { W: 640, rowH: 44, labelW: 200, valueCol: false, lo: 0.5, hi: 4, ticks: [0.5, 1, 1.5, 2, 3, 4] });
+forest($("mini-cancel"), "cancellation", ["any:api_access", "any:advanced_export", "breadth_2", "any:real_time_collab", "events_10", "any:ai_insights", "any:team_analytics"], { W: 640, rowH: 40, labelW: 200, valueCol: false, lo: 0.25, hi: 2, ticks: [0.25, 0.5, 0.75, 1, 1.5, 2] });
+
+let FO = "converted";
+const F_ITEMS = GROUPS.flatMap(g => g.items);
+(function forestControls() {
+  const seg = $("f-seg");
+  for (const [o, meta] of Object.entries(OUTCOMES)) {
+    const btn = document.createElement("button"); btn.type = "button"; btn.textContent = meta.label;
+    btn.setAttribute("aria-pressed", String(o === FO));
+    btn.addEventListener("click", () => { FO = o; for (const b of seg.children) b.setAttribute("aria-pressed", String(b === btn)); forest($("forest"), FO, F_ITEMS); });
+    seg.appendChild(btn);
+  }
+  forest($("forest"), FO, F_ITEMS);
+})();
+
+/* ---------- landmark bars ---------- */
+(function landmark() {
+  const svg = $("landmark"), lm = DATA.landmark;
+  const W = 600, H = 330, x0 = 60, x1 = W - 20, base = H - 50, topY = 30;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  const max = 0.25, sy = (v) => base - (v / max) * (base - topY);
+  for (const t of [0, 0.05, 0.1, 0.15, 0.2, 0.25]) {
+    el("line", { x1: x0, x2: x1, y1: sy(t), y2: sy(t), stroke: t === 0 ? "var(--axis)" : "var(--line)" }, svg);
+    text(svg, x0 - 10, sy(t) + 4, pct(t, 0), { "text-anchor": "end", class: "tm", "font-size": 12, "font-family": "var(--font-data)" });
+  }
+  const bw = (x1 - x0) / lm.length;
+  lm.forEach((d, i) => {
+    const cx = x0 + bw * i + bw / 2, w = bw * 0.5, best = i === 1;
+    const g = el("g", { tabindex: 0, "aria-label": `${d.events_before_landmark} events: ${pct(d.rate)}` }, svg);
+    el("path", { d: `M${cx - w / 2},${base} V${sy(d.rate) + 4} q0,-4 4,-4 H${cx + w / 2 - 4} q4,0 4,4 V${base} Z`, fill: best ? "var(--pos)" : "var(--axis)" }, g);
+    text(g, cx, sy(d.rate) - 10, pct(d.rate), { "text-anchor": "middle", "font-size": 15, "font-weight": 600, "font-family": "var(--font-data)" });
+    text(g, cx, base + 22, d.events_before_landmark + " events", { "text-anchor": "middle", class: "t2", "font-size": 13 });
+    text(g, cx, base + 40, int(d.users) + " users", { "text-anchor": "middle", class: "tm", "font-size": 12 });
+    el("rect", { x: cx - bw / 2, y: topY, width: bw, height: base - topY, fill: "transparent" }, g);
+    bindHover(g, (e) => showTip(e, (t) => { tipLine(t, "k", `${d.events_before_landmark} events in days 0–13`); tipLine(t, "v", pct(d.rate)); tipLine(t, "k", `${int(d.converted)} of ${int(d.users)} bought in days 14–95`); }));
+  });
+})();
+
+/* ---------- dependency graph ---------- */
+const G = { mode: "both", unsure: false };
+function drawGraph() {
+  const svg = $("graph"); svg.replaceChildren();
+  const W = 1080, xL = 300, xR = 740, top = 40, rowH = 26, gapH = 14;
+  const pos = {};
+  let y = top;
+  const layer = el("g", {}, svg), edgesG = el("g", {}, layer), nodesG = el("g", {}, layer);
+  text(nodesG, xL, 16, "WHILE FREE", { "text-anchor": "end", class: "tm", "font-size": 11, "letter-spacing": "0.08em" });
+  for (const g of GROUPS) {
+    text(nodesG, 16, y + 4, g.name, { class: "tm", "font-size": 12, "font-weight": 600 });
+    for (const b of g.items) { pos[b] = y; y += rowH; }
+    y += gapH;
+  }
+  const H = y - gapH + 4;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  const pre = ["converted_pro", "converted_enterprise"], post = ["expansion", "contraction", "cancellation"];
+  const shown = G.mode === "pre" ? pre : G.mode === "post" ? post : [...pre, ...post];
+  const opos = {};
+  text(nodesG, xR, 16, "OUTCOME", { class: "tm", "font-size": 11, "letter-spacing": "0.08em" });
+  const span = H - top - 40;
+  shown.forEach((o, i) => { opos[o] = top + 10 + (shown.length === 1 ? span / 2 : (span * i) / (shown.length - 1)); });
+  if (G.mode === "both") { opos.converted_pro = top + 30; opos.converted_enterprise = top + 100; opos.expansion = H * 0.5; opos.contraction = H * 0.5 + 75; opos.cancellation = H * 0.5 + 150; }
+
+  const nodeEls = {}, edgeEls = [], maxLn = Math.log(3);
+  for (const o of shown) for (const b of F_ITEMS) {
+    const r = R[b + "|" + o]; if (!r || (!r.sig && !G.unsure)) continue;
+    const y1 = pos[b], y2 = opos[o];
+    const mag = Math.min(Math.abs(Math.log(r.rr)) / maxLn, 1);
+    const col = !r.sig ? "var(--unsure)" : r.rr > 1 ? "var(--pos)" : "var(--neg)";
+    const w = r.sig ? 1.5 + 7 * mag : 1.2;
+    const d = `M${xL + 8},${y1} C${xL + 200},${y1} ${xR - 200},${y2} ${xR - 9},${y2}`;
+    const p = el("path", { d, class: "edge", stroke: col, "stroke-width": w, opacity: r.rob ? 0.85 : r.sig ? 0.7 : 0.5,
+      "stroke-dasharray": r.rob ? "none" : r.sig ? "7 5" : "2 4", "stroke-linecap": "round" }, edgesG);
+    const hit = el("path", { d, fill: "none", stroke: "transparent", "stroke-width": Math.max(12, w + 8), tabindex: 0, "aria-label": `${nameOf(b)} to ${OUTCOMES[o].label}` }, edgesG);
+    bindHover(hit, (e) => { focusOn([b, o], [p]); showTip(e, (t) => {
+      tipLine(t, "k", nameOf(b) + " → " + OUTCOMES[o].label);
+      tipRatio(t, r, `(${fmt(r.lo)}–${fmt(r.hi)})`);
+      tipLine(t, "k", strength(r));
+      tipLine(t, "k", `${int(r.ee)} ${o.startsWith("converted") ? "purchases" : "events"} after the behaviour, ${int(r.ue)} without it`);
+    }); }, clear);
+    edgeEls.push({ p, b, o });
+  }
+  for (const b of F_ITEMS) {
+    const gN = el("g", { class: "node", tabindex: 0, "aria-label": nameOf(b) }, nodesG);
+    el("circle", { cx: xL, cy: pos[b], r: 6, fill: "var(--surface)", stroke: "var(--ink-2)", "stroke-width": 2 }, gN);
+    text(gN, xL - 14, pos[b] + 5, nameOf(b), { "text-anchor": "end", "font-size": 14 });
+    el("rect", { x: 10, y: pos[b] - 12, width: xL + 4, height: 24, fill: "transparent" }, gN);
+    nodeEls[b] = gN;
+    bindHover(gN, (e) => { focusOn([b], edgeEls.filter(x => x.b === b).map(x => x.p)); showTip(e, (t) => {
+      tipLine(t, "k", nameOf(b));
+      let any = false;
+      for (const o of ["converted", ...shown]) { const r = R[b + "|" + o]; if (!r) continue; any = true;
+        tipRatio(t, r, `${OUTCOMES[o].short} (${fmt(r.lo)}–${fmt(r.hi)})${r.rob ? "" : r.sig ? " ·95%" : " ·uncertain"}`); }
+      if (!any) tipLine(t, "k", "No data for these outcomes");
+      if (b === "any:custom_workflows") tipLine(t, "k", "Released 1 Nov 2024: no pre-purchase data");
+    }); }, clear);
+  }
+  const lc = DATA.lifecycle;
+  const counts = { converted_pro: int(DATA.summary.pro) + " buyers", converted_enterprise: int(DATA.summary.enterprise) + " buyers",
+    expansion: int(lc.seats_expanded) + " + " + int(lc.plan_upgraded) + " customers", contraction: int(lc.seats_contracted) + " + " + int(lc.plan_downgraded) + " customers",
+    cancellation: int(lc.subscription_cancelled) + " customers" };
+  if (G.mode === "both") {
+    text(nodesG, xR + 16, opos.converted_pro - 22, "Purchase", { class: "tm", "font-size": 12, "font-weight": 600 });
+    text(nodesG, xR + 16, opos.expansion - 22, "After purchase", { class: "tm", "font-size": 12, "font-weight": 600 });
+  }
+  for (const o of shown) {
+    const gN = el("g", { class: "node", tabindex: 0, "aria-label": OUTCOMES[o].label }, nodesG);
+    el("rect", { x: xR - 9, y: opos[o] - 9, width: 18, height: 18, rx: 4, fill: "var(--ink)" }, gN);
+    text(gN, xR + 16, opos[o] + 2, OUTCOMES[o].short, { "font-size": 15, "font-weight": 600 });
+    text(gN, xR + 16, opos[o] + 19, counts[o] + (OUTCOMES[o].sub ? " · " + OUTCOMES[o].sub : ""), { class: "tm", "font-size": 12 });
+    el("rect", { x: xR - 12, y: opos[o] - 14, width: 320, height: 38, fill: "transparent" }, gN);
+    nodeEls[o] = gN;
+    bindHover(gN, (e) => { focusOn([o], edgeEls.filter(x => x.o === o).map(x => x.p)); showTip(e, (t) => {
+      tipLine(t, "k", OUTCOMES[o].label + ": strongest links");
+      const rs = F_ITEMS.map(b => [b, R[b + "|" + o]]).filter(([, r]) => r && r.sig)
+        .sort((a, b2) => Math.abs(Math.log(b2[1].rr)) - Math.abs(Math.log(a[1].rr))).slice(0, 6);
+      if (!rs.length) tipLine(t, "k", "No link with a 95% interval excluding 1.00×");
+      for (const [b, r] of rs) tipRatio(t, r, nameOf(b));
+    }); }, clear);
+  }
+  function focusOn(keys, paths) {
+    layer.classList.add("dim");
+    for (const n of Object.values(nodeEls)) n.classList.remove("hot");
+    for (const x of edgeEls) x.p.classList.toggle("hot", paths.includes(x.p));
+    const linked = new Set(keys);
+    for (const x of edgeEls) if (paths.includes(x.p)) { linked.add(x.b); linked.add(x.o); }
+    for (const k of linked) nodeEls[k] && nodeEls[k].classList.add("hot");
+  }
+  function clear() { layer.classList.remove("dim"); hideTip(); }
+}
+for (const [id, mode] of [["g-both", "both"], ["g-pre", "pre"], ["g-post", "post"]]) {
+  $(id).addEventListener("click", () => {
+    G.mode = mode;
+    for (const k of ["g-both", "g-pre", "g-post"]) $(k).setAttribute("aria-pressed", String(k === id));
+    drawGraph();
+  });
+}
+$("g-unsure").addEventListener("change", (e) => { G.unsure = e.target.checked; drawGraph(); });
+drawGraph();
+
+/* ---------- journey graph ---------- */
+(function journey() {
+  const svg = $("journey"), J = DATA.journey;
+  const W = 960, H = 470;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  const feats = ["real_time_collab", "ai_insights", "advanced_export", "api_access", "team_analytics", "custom_workflows"];
+  const node = Object.fromEntries(J.nodes.map(n => [n.id, n]));
+  const xS = 120, xF = 420, xO = 800;
+  const P = { Signup: [xS, H / 2], Converted: [xO, 150], "Not converted": [xO, 330] };
+  feats.forEach((f, i) => { P[f] = [xF, 50 + i * 74]; });
+  const maxUsers = Math.max(...feats.map(f => node[f].users || 1));
+  const rad = (f) => 7 + 15 * Math.sqrt((node[f].users || 0) / maxUsers);
+  const outBy = {};
+  for (const e of J.edges) (outBy[e.source] ||= []).push(e);
+  const maxCount = Math.max(...J.edges.filter(e => e.source !== e.target).map(e => e.count));
+  const wOf = (c) => 1 + 9 * Math.sqrt(c / maxCount);
+  const eg = el("g", {}, svg), ng = el("g", {}, svg), paths = [];
+  function curve(a, b) {
+    const [x1, y1] = P[a], [x2, y2] = P[b];
+    if (feats.includes(a) && feats.includes(b)) {
+      const bulge = 40 + Math.abs(y2 - y1) * 0.55;
+      return `M${x1 + rad(a)},${y1} C${x1 + bulge},${y1} ${x2 + bulge},${y2} ${x2 + rad(b) + 3},${y2}`;
+    }
+    const sx = x1 + (feats.includes(a) ? rad(a) : 10), ex = x2 - (feats.includes(b) ? rad(b) : 10), mx = (sx + ex) / 2;
+    return `M${sx},${y1} C${mx},${y1} ${mx},${y2} ${ex},${y2}`;
+  }
+  for (const e of J.edges) {
+    if (e.source === e.target) continue;
+    const ff = feats.includes(e.source) && feats.includes(e.target);
+    const col = e.target === "Converted" ? "var(--pos)" : e.target === "Not converted" ? "var(--unsure)" : "var(--ink-2)";
+    const base = ff ? (e.share >= 0.1 ? 0.45 : 0) : 0.55;
+    const p = el("path", { d: curve(e.source, e.target), class: "edge", stroke: col, "stroke-width": wOf(e.count), opacity: base, "stroke-linecap": "round" }, eg);
+    p.dataset.base = base;
+    paths.push({ p, e });
+  }
+  for (const id of [...feats, "Signup", "Converted", "Not converted"]) {
+    const [x, y] = P[id], n = node[id];
+    const g = el("g", { class: "node", tabindex: 0, "aria-label": id }, ng);
+    if (feats.includes(id)) {
+      el("circle", { cx: x, cy: y, r: rad(id), fill: "var(--surface)", stroke: "var(--ink)", "stroke-width": 2 }, g);
+      text(g, x - rad(id) - 10, y - 1, id, { "text-anchor": "end", "font-size": 14, "font-weight": 600 });
+      text(g, x - rad(id) - 10, y + 16, `${pct(n.p_convert, 0)} buy · removal −${pct(n.removal_effect, 0)}`, { "text-anchor": "end", class: "tm", "font-size": 12 });
+    } else {
+      el("rect", { x: x - 9, y: y - 9, width: 18, height: 18, rx: 4, fill: id === "Converted" ? "var(--pos)" : id === "Signup" ? "var(--ink)" : "var(--unsure)" }, g);
+      const right = id !== "Signup";
+      text(g, right ? x + 16 : x - 16, y + 1, id, { "text-anchor": right ? "start" : "end", "font-size": 15, "font-weight": 600 });
+      const sub = id === "Signup" ? int(DATA.summary.users) + " users" : id === "Converted" ? pct(J.base) + " of users" : pct(1 - J.base) + " of users";
+      text(g, right ? x + 16 : x - 16, y + 19, sub, { "text-anchor": right ? "start" : "end", class: "tm", "font-size": 12 });
+    }
+    el("circle", { cx: x, cy: y, r: 26, fill: "transparent" }, g);
+    bindHover(g, (ev) => {
+      for (const { p, e } of paths) p.setAttribute("opacity", e.source === id || e.target === id ? 0.9 : 0.05);
+      showTip(ev, (t) => {
+        const fwd = feats.includes(id) || id === "Signup";
+        tipLine(t, "k", id === "Signup" ? "First feature tried" : fwd ? id + ": next step" : id + ": last step before");
+        const list = fwd ? (outBy[id] || []) : J.edges.filter(e => e.target === id);
+        const tot = list.reduce((s, e) => s + e.count, 0);
+        for (const e of [...list].sort((a, b) => b.count - a.count).slice(0, 8)) {
+          const row = document.createElement("div"); row.className = "row";
+          const v = document.createElement("span"); v.className = "v"; v.textContent = pct(e.count / tot, 0);
+          const k = document.createElement("span"); k.className = "k";
+          k.textContent = (fwd ? (e.target === id ? "repeat " + id : e.target) : e.source) + " · " + int(e.count);
+          row.append(v, k); t.appendChild(row);
+        }
+        if (feats.includes(id)) tipLine(t, "k", `${int(n.users)} users reached it, ${int(n.converted_users)} of them bought`);
+      });
+    }, () => { for (const { p } of paths) p.setAttribute("opacity", p.dataset.base); hideTip(); });
+  }
+  const tb = $("jtable"), head = tb.insertRow();
+  for (const [h, c] of [["Feature", 0], ["Users", 1], ["P(buy)", 1], ["Removal", 1]]) {
+    const th = document.createElement("th"); th.textContent = h; if (c) th.className = "n"; head.appendChild(th);
+  }
+  for (const f of [...feats].sort((a, b) => node[b].removal_effect - node[a].removal_effect)) {
+    const n = node[f], tr = tb.insertRow();
+    for (const [v, c] of [[f, 0], [int(n.users), 1], [pct(n.p_convert), 1], ["−" + pct(n.removal_effect, 0), 1]]) {
+      const td = tr.insertCell(); td.textContent = v; if (c) td.className = "n";
+    }
+  }
+})();
+
+fit();
+go((parseInt(location.hash.slice(1), 10) || 1) - 1);
+</script>
+</body>
+</html>
