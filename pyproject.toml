@@ -15,12 +15,12 @@ funnels = ["duckdb>=1.1,<2"]
 dev = ["pytest>=8"]
 
 [tool.setuptools.packages.find]
-include = ["graph*", "funnels*"]
+include = ["graph*", "funnels*", "data_checks*"]
 
 [tool.setuptools.package-data]
 funnels = ["sql/*.sql"]
 graph = ["report/*.html"]
 
 [tool.pytest.ini_options]
-testpaths = ["graph/tests", "funnels/tests"]
+testpaths = ["graph/tests", "funnels/tests", "data_checks/tests"]
 addopts = "--junitxml=docs/test-reports/junit.xml"
